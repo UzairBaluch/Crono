@@ -23,21 +23,83 @@ curl -X POST https://api.crono.dev/jobs \
   }'
 ```
 
+## Who it's for
+
+**Indie SaaS founders and backend devs** who need to call their own HTTP endpoints on a schedule — with retries, history, and alerts when something breaks — without maintaining cron on a VPS.
+
 ## Features
 
-- Schedule any HTTP endpoint — GET or POST, any URL, any cron expression
-- Auto-retry on failure — 3 retries with exponential backoff (5s → 30s → 2min)
-- Execution logs — every run logged with status, duration, and response
-- Failure alerts — instant email when a job fails
-- API-first — full REST API with API key auth
-- Beautiful dashboard — manage jobs, view logs, pause/resume with one click
-- Indie pricing — starts free, scales to $29/mo
+### Schedule & execute
+
+- **HTTP jobs** — `GET` or `POST` to any public URL, with custom headers and JSON body
+- **Cron schedules** — standard expressions plus **per-job timezone** (e.g. `America/New_York`)
+- **Pause & resume** — stop a job instantly without deleting it (dashboard or API)
+- **Hard timeouts** — outbound requests abort after 30s so workers never hang
+
+### Reliability you can see
+
+- **Automatic retries** — 3 attempts with exponential backoff (5s → 30s → 2min) on failure
+- **Execution logs** — every run stored: status, HTTP code, duration, response snippet, error message
+- **Log retention by plan** — 7 / 30 / 90 days (Free / Starter / Pro)
+- **Failure alerts** — email when a job fails after retries (know before users complain)
+- **Missed-run alerts** — dead man's switch if a job *didn't* fire on schedule
+- **Slack & Discord webhooks** — route failures to chat, not only email
+- **Separate worker process** — scheduling (API) and firing (worker) scale independently on Railway
+- **Readiness checks** — `GET /api/v1/health/ready` verifies Postgres and Redis before traffic
+
+### Built for developers
+
+- **REST API** — full CRUD for jobs and logs under `/api/v1`
+- **Dual auth** — JWT for the dashboard, **API keys** (`cron_…`) for scripts and CI
+- **Plan limits enforced server-side** — 3 / 50 / 500 jobs (Free / Starter / Pro)
+- **Stripe billing** — upgrade, customer portal, webhooks keep `plan` in sync with Postgres
+- **Signed outbound requests** — optional HMAC headers so your API can verify Crono
+
+### Trust & security (production-minded)
+
+- **Tenant isolation** — every job and log scoped to your account; no cross-user access
+- **Validated inputs** — Zod on API bodies; cron expressions validated before schedule
+- **Safe outbound requests** — SSRF protections for private IPs and metadata URLs *(shipping in hardening phase)*
+- **Webhook integrity** — Stripe signatures verified on raw body before updating subscriptions
+
+### Dashboard
+
+- **Job table** — search, filter, create, edit, delete
+- **Run history** — per-job log stream with success/failed filters
+- **One-click controls** — pause, resume, copy API key, upgrade plan
+
+### Pricing
+
+| | Free | Starter | Pro |
+|---|:---:|:---:|:---:|
+| Active jobs | 3 | 50 | 500 |
+| Price | $0 | $9/mo | $29/mo |
+
+Details: [Pricing](#pricing).
+
+---
+
+## Why this is a strong backend learning project
+
+Building Crono end-to-end forces real production patterns (not a todo CRUD demo):
+
+| You practice | Where it shows up in Crono |
+|---|---|
+| Layered architecture | Routes → controllers → services → repositories (TypeScript + Zod) |
+| PostgreSQL design | Users, jobs, logs, FKs, indexes, cascade deletes |
+| Auth | bcrypt, JWT, API keys, per-tenant authorization |
+| Background jobs | BullMQ repeatable jobs, Redis, dedicated worker |
+| Distributed quirks | At-least-once runs, retries, idempotent webhook handling |
+| External integrations | Axios executor, Resend email, Stripe checkout + webhooks |
+| Ops | Docker Postgres/Redis, migrate on deploy, API + worker services |
+
+See **`CRONO_BUILD_CHECKLIST.md`** for the phased build + production hardening checklist.
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| API | Node.js + Express |
+| API | Node.js + TypeScript + Express 5 |
 | Job Queue | BullMQ + Redis |
 | Database | PostgreSQL |
 | Frontend | Next.js |

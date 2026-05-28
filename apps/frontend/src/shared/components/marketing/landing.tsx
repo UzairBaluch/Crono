@@ -3,15 +3,19 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
+  Activity,
   AlertTriangle,
   BellRing,
   CalendarClock,
   CheckCircle2,
   ChevronDown,
+  Clock,
   Globe,
   Logs,
   Menu,
+  MessageSquare,
   Moon,
+  ShieldCheck,
   Sun,
   Terminal,
   X,
@@ -38,8 +42,15 @@ const features = [
   {
     category: "reliability",
     title: "Get alerted before incidents escalate",
-    description: "Route failures to email and webhooks so the right team sees them immediately.",
+    description: "Email on failure, optional Slack and Discord webhooks, and missed-run alerts if a job never fired.",
     icon: BellRing
+  },
+  {
+    category: "reliability",
+    title: "Missed-run alerts",
+    description:
+      "Dead man's switch — know when a job did not run on schedule, not only when an execution fails.",
+    icon: Clock
   },
   {
     category: "scheduling",
@@ -58,6 +69,25 @@ const features = [
     title: "Run on infrastructure built for consistency",
     description: "Distributed execution keeps jobs predictable across environments and regions.",
     icon: Globe
+  },
+  {
+    category: "visibility",
+    title: "Readiness checks for deploys",
+    description:
+      "Health endpoints verify Postgres and Redis so load balancers only route traffic when Crono can run jobs.",
+    icon: Activity
+  },
+  {
+    category: "developer",
+    title: "Signed outbound requests",
+    description: "Optional HMAC headers so your API can verify HTTP calls truly came from Crono.",
+    icon: ShieldCheck
+  },
+  {
+    category: "developer",
+    title: "Slack and Discord alerts",
+    description: "Send failure notifications to the channels your team already monitors.",
+    icon: MessageSquare
   }
 ];
 
@@ -136,6 +166,9 @@ export function LandingPage() {
             <Link href="#" className="transition-colors duration-200 hover:text-foreground">
               Docs
             </Link>
+            <Link href="#features" className="transition-colors duration-200 hover:text-foreground">
+              Features
+            </Link>
             <Link href="#pricing" className="transition-colors duration-200 hover:text-foreground">
               Pricing
             </Link>
@@ -177,6 +210,9 @@ export function LandingPage() {
             <div className="flex flex-col gap-2 text-sm">
               <Link href="#" className="rounded-xl px-3 py-2 text-muted transition-colors hover:bg-hover hover:text-foreground">
                 Docs
+              </Link>
+              <Link href="#features" className="rounded-xl px-3 py-2 text-muted transition-colors hover:bg-hover hover:text-foreground">
+                Features
               </Link>
               <Link href="#pricing" className="rounded-xl px-3 py-2 text-muted transition-colors hover:bg-hover hover:text-foreground">
                 Pricing
@@ -275,7 +311,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="mt-28 md:mt-32">
+        <section id="features" className="mt-28 md:mt-32">
           <h2 className="text-2xl font-medium tracking-tight md:text-[2rem]">Built for production scheduling.</h2>
           <div className="mt-4 flex flex-wrap gap-2">
             {[
