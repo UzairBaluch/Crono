@@ -238,10 +238,10 @@ export function LandingPage() {
                     key={preset.label}
                     type="button"
                     onClick={() => setActivePreset(index)}
-                    className={`focus-ring rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors ${
+                    className={`${themeClasses.chip.base} ${
                       activePreset === index
-                        ? "border-blue-500/40 bg-blue-500/10 text-blue-400"
-                        : "border-border bg-card text-muted hover:bg-hover hover:text-foreground"
+                        ? themeClasses.chip.active
+                        : themeClasses.chip.inactive
                     }`}
                   >
                     {preset.label}

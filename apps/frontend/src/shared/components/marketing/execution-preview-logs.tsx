@@ -56,7 +56,7 @@ export function ExecutionPreviewLogs() {
           </span>
         </div>
 
-        <ul className={`space-y-2.5 ${designTokens.radius.lg} border border-border/70 bg-background/70 p-3 ${designTokens.typography.mono} text-[13px] leading-relaxed`}>
+        <ul className={`space-y-2.5 ${themeClasses.log.stream} p-3 ${designTokens.typography.mono} text-[13px] leading-relaxed`}>
           {visibleLogs.map((line, index) => (
             <li
               key={line.id}
