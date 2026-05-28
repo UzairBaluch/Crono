@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 10 10 10;
+  --card: 17 17 17;
+  --card-secondary: 22 22 22;
+  --border: 38 38 38;
+  --hover: 28 28 28;
+  --foreground: 250 250 250;
+  --muted: 161 161 170;
+  --muted-foreground: 113 113 122;
+  --ring: 250 250 250;
+  color-scheme: dark;
+}
+
+.theme-light {
+  --background: 250 250 250;
+  --card: 255 255 255;
+  --card-secondary: 244 244 245;
+  --border: 228 228 231;
+  --hover: 237 237 240;
+  --foreground: 24 24 27;
+  --muted: 113 113 122;
+  --muted-foreground: 82 82 91;
+  --ring: 24 24 27;
+  color-scheme: light;
+}
+
+* {
+  @apply border-border;
+}
+
+body {
+  @apply bg-background text-foreground antialiased;
+}
+
+.surface {
+  @apply rounded-2xl border border-border bg-card;
+}
+
+.surface-secondary {
+  @apply rounded-xl border border-border bg-card-secondary;
+}
+
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background;
+  --tw-ring-color: rgb(var(--ring) / 0.7);
+}

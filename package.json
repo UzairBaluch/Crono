@@ -1,0 +1,8 @@
+{
+  "name": "crona",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
