@@ -1,0 +1,54 @@
+{
+  // ===========================================================================
+  // PHASE 1 — file 2 of 7 (@crono/db)
+  // ===========================================================================
+  // JOB: Tell TypeScript how to compile src/*.ts → dist/*.js for this package.
+  //
+  // AFTER THIS FILE:
+  //   1. Create schema.sql (you write SQL — file 3)
+  //   2. Create src/index.ts, src/types.ts, src/migrate.ts (files 4–6)
+  //   3. Run: npm run build -w @crono/db
+  //
+  // VERIFY (after you have at least an empty src/index.ts that exports something):
+  //   npm run build -w @crono/db
+  //   → should create packages/db/dist/ with no errors
+  // ===========================================================================
+
+  "compilerOptions": {
+    // "ES2022" — modern JS features; Node 20+ supports this fine
+    "target": "ES2022",
+
+    // ESM — must match package.json "type": "module"
+    // NodeNext = correct resolution for import "./foo.js" in .ts files
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    // Compiled output goes here (package.json "main" points to dist/index.js)
+    "outDir": "dist",
+
+    // Only compile files under src/ — keeps dist/ and schema.sql out of tsc
+    "rootDir": "src",
+
+    // Catch typos and null issues early — keep true as you learn
+    "strict": true,
+
+    // Helps IDEs jump to types when other packages import @crono/db
+    "declaration": true,
+    "declarationMap": true,
+
+    // Faster builds; skip checking node_modules .d.ts deeply
+    "skipLibCheck": true,
+
+    // Align with @types/node (Node 20 LTS)
+    "lib": ["ES2022"],
+
+    // Required for import.meta.url check in migrate.ts (you'll use this later)
+    "moduleDetection": "force"
+  },
+
+  // Only TypeScript files in src/ — not schema.sql, not tests at package root
+  "include": ["src/**/*"],
+
+  // Never emit compiled junk for these
+  "exclude": ["node_modules", "dist"]
+}

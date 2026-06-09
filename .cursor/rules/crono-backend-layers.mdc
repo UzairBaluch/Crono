@@ -1,0 +1,32 @@
+---
+description: Crono backend 4-layer rules for packages and apps/backend
+globs: packages/**/*,apps/backend/**/*,apps/worker/**/*
+alwaysApply: false
+---
+
+# Crono backend — layer boundaries
+
+API base: `/api/v1` · Stack: TypeScript, Express 5, raw SQL (`pg`), BullMQ, Zod.
+
+## Layers
+
+| Layer | May | Must NOT |
+|-------|-----|----------|
+| **routes** | mount path, middleware | SQL, business rules |
+| **controllers** | read req, call service, set status | pool.query, bcrypt, Stripe |
+| **services** | rules, orchestration, `ApiError` | `req`/`res`, raw SQL |
+| **repositories** | parameterized SQL via `@crono/db` pool | auth decisions, HTTP |
+
+## Packages (infra only)
+
+- `@crono/db` — pool, schema, migrate, types. No feature queries.
+- `@crono/queue` — Redis + BullMQ queue export.
+- `@crono/shared` — pure helpers (`generateApiKey`, `isValidCron`, constants).
+
+## When user asks to "add a feature"
+
+List files per layer first. User implements bottom-up: repository → service → validation → controller → route.
+
+## Mentor mode still applies
+
+Unless user says **fix it**, do not paste full implementations — describe what each file should do and how to test.
