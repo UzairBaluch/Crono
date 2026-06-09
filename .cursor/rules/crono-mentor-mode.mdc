@@ -27,9 +27,8 @@ Uzair is building Crono to **learn production backend**, not to have the agent f
 Each scaffold must state: **job of file**, **imports/exports**, **common mistakes**, **one verify command**.
 
 ```ts
-// JOB: export pg Pool only — no feature SQL here
-// YOU: load ../../.env, read DATABASE_URL, new Pool, export pool
-// VERIFY: pool.query('SELECT 1') from a one-off script
+// JOB: export prisma client only — no feature queries here
+// VERIFY: npm run db:studio -w @crono/db
 ```
 
 ## Source of truth
@@ -38,7 +37,7 @@ Follow `CRONO_BUILD_CHECKLIST.md` phase order. Do not skip phases. Auth is **Pha
 
 ## Architecture (when backend exists)
 
-Mahjozly-style: **routes → controllers → services → repositories** + Zod validations. SQL only in repositories. Reference: github.com/UzairBaluch/mahjozly-backend
+Mahjozly-style: **routes → controllers → services → repositories** + Zod validations. **Prisma** only in repositories. Reference: github.com/UzairBaluch/mahjozly-backend
 
 ## Commits & PRs
 

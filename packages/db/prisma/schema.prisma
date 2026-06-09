@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                     String   @id @default(uuid()) @db.Uuid
+  email                  String   @unique
+  password_hash          String
+  plan                   String   @default("free")
+  stripe_customer_id     String?
+  stripe_subscription_id String?
+  api_key                String   @unique
+  created_at             DateTime @default(now()) @db.Timestamptz(6)
+
+  jobs Job[]
+  logs Log[]
+
+  @@map("users")
+}
+
+model Job {
+  id          String   @id @default(uuid()) @db.Uuid
+  user_id     String   @db.Uuid
+  name        String
+  url         String
+  method      String   @default("GET")
+  headers     Json     @default("{}")
+  body        String?
+  schedule    String
+  timezone    String   @default("UTC")
+  status      String   @default("active")
+  retry_count Int      @default(3)
+  bull_job_id String?
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  logs Log[]
+
+  @@index([user_id], map: "idx_jobs_user_id")
+  @@map("jobs")
+}
+
+model Log {
+  id            String   @id @default(uuid()) @db.Uuid
+  job_id        String   @db.Uuid
+  user_id       String   @db.Uuid
+  status        String
+  http_status   Int?
+  duration_ms   Int?
+  response_body String?
+  error_message String?
+  attempt       Int      @default(1)
+  fired_at      DateTime @default(now()) @db.Timestamptz(6)
+
+  job  Job  @relation(fields: [job_id], references: [id], onDelete: Cascade)
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([job_id], map: "idx_logs_job_id")
+  @@index([fired_at(sort: Desc)], map: "idx_logs_fired_at")
+  @@map("logs")
+}

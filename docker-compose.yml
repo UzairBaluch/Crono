@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: crono
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - crono_pg_data:/var/lib/postgresql/data
 

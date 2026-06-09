@@ -86,7 +86,7 @@ Building Crono end-to-end forces real production patterns (not a todo CRUD demo)
 | You practice | Where it shows up in Crono |
 |---|---|
 | Layered architecture | Routes → controllers → services → repositories (TypeScript + Zod) |
-| PostgreSQL design | Users, jobs, logs, FKs, indexes, cascade deletes |
+| PostgreSQL design | Prisma schema, relations, migrations, cascade deletes |
 | Auth | bcrypt, JWT, API keys, per-tenant authorization |
 | Background jobs | BullMQ repeatable jobs, Redis, dedicated worker |
 | Distributed quirks | At-least-once runs, retries, idempotent webhook handling |
@@ -101,7 +101,7 @@ See **`CRONO_BUILD_CHECKLIST.md`** for the phased build + production hardening c
 |---|---|
 | API | Node.js + TypeScript + Express 5 |
 | Job Queue | BullMQ + Redis |
-| Database | PostgreSQL |
+| Database | PostgreSQL + Prisma |
 | Frontend | Next.js |
 | Billing | Stripe |
 | Email | Resend |

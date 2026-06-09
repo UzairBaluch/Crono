@@ -4,5 +4,11 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "scripts": {
+    "db:generate": "npm run db:generate -w @crono/db",
+    "db:migrate": "npm run db:migrate -w @crono/db",
+    "db:studio": "npm run db:studio -w @crono/db",
+    "build:db": "npm run build -w @crono/db"
+  }
 }

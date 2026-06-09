@@ -6,20 +6,20 @@ alwaysApply: false
 
 # Crono backend — layer boundaries
 
-API base: `/api/v1` · Stack: TypeScript, Express 5, raw SQL (`pg`), BullMQ, Zod.
+API base: `/api/v1` · Stack: TypeScript, Express 5, Prisma, BullMQ, Zod.
 
 ## Layers
 
 | Layer | May | Must NOT |
 |-------|-----|----------|
-| **routes** | mount path, middleware | SQL, business rules |
-| **controllers** | read req, call service, set status | pool.query, bcrypt, Stripe |
-| **services** | rules, orchestration, `ApiError` | `req`/`res`, raw SQL |
-| **repositories** | parameterized SQL via `@crono/db` pool | auth decisions, HTTP |
+| **routes** | mount path, middleware | DB queries, business rules |
+| **controllers** | read req, call service, set status | prisma calls, bcrypt, Stripe |
+| **services** | rules, orchestration, `ApiError` | `req`/`res`, DB access |
+| **repositories** | Prisma queries via `@crono/db` client | auth decisions, HTTP |
 
 ## Packages (infra only)
 
-- `@crono/db` — pool, schema, migrate, types. No feature queries.
+- `@crono/db` — Prisma client, schema, migrations, types. No feature queries.
 - `@crono/queue` — Redis + BullMQ queue export.
 - `@crono/shared` — pure helpers (`generateApiKey`, `isValidCron`, constants).
 

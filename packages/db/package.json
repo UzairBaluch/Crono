@@ -1,11 +1,4 @@
 {
-  "_phase": "1 — file 1 of 7",
-  "_todo_after_this_file": [
-    "Run from repo root: npm install",
-    "Then create tsconfig.json (say 'next step')",
-    "Then schema.sql → src/index.ts → src/types.ts → src/migrate.ts"
-  ],
-  "_name_note": "Workspace package imported as @crono/db in backend later",
   "name": "@crono/db",
   "version": "0.0.1",
   "private": true,
@@ -16,22 +9,25 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js"
     }
   },
-  "_scripts_note": "build before migrate; migrate runs compiled dist/migrate.js",
   "scripts": {
-    "build": "tsc",
-    "migrate": "node dist/migrate.js"
+    "build": "prisma generate && tsc",
+    "db:generate": "prisma generate",
+    "db:migrate": "node --env-file=../../.env ../../node_modules/.bin/prisma migrate dev",
+    "db:studio": "node --env-file=../../.env ../../node_modules/.bin/prisma studio"
   },
-  "_dependencies_note": "pg = Postgres client pool; dotenv = load repo root .env in migrate/index",
   "dependencies": {
-    "dotenv": "^16.4.5",
-    "pg": "^8.13.0"
+    "@prisma/client": "^6.9.0",
+    "dotenv": "^16.4.5"
   },
-  "_devDependencies_note": "TypeScript + types for Node and pg",
   "devDependencies": {
     "@types/node": "^20.17.0",
-    "@types/pg": "^8.11.10",
+    "prisma": "^6.9.0",
     "typescript": "^5.6.3"
   }
 }
