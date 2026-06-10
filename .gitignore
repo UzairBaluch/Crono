@@ -8,5 +8,5 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 coverage/
-*.tsbuildinfo
+packages/*/dist/
 CRONO_BUILD_CHECKLIST.md

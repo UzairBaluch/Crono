@@ -9,7 +9,7 @@ Uzair is building Crono to **learn production backend**, not to have the agent f
 
 ## Default behavior
 
-- **Do NOT** write business logic, SQL queries, auth, services, or full implementations.
+- **Do NOT** write business logic, Prisma queries in services, auth, or full implementations.
 - **Do** explain layers, tradeoffs, and what to put in each file.
 - **Do** give hints, small snapshots (curl, psql, return shapes), and reviews of *their* code.
 - Treat user as ~**4 months** experience: plain language, one concept per reply, no jargon dumps.
