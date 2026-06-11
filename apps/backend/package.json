@@ -1,0 +1,54 @@
+{
+  "_phase": "4 — file 1 of ~30",
+  "_job": "Workspace manifest for Express API — deps + dev/build/start scripts only",
+  "_todo_after_this_file": [
+    "Run from repo root: npm install",
+    "Create apps/backend/tsconfig.json (next step)",
+    "Add root .env with PORT, DATABASE_URL, REDIS_URL, JWT_SECRET, APP_URL",
+    "Do NOT create src/ files until tsconfig exists"
+  ],
+  "_common_mistakes": [
+    "Putting business logic or route handlers in package.json — this file is config only",
+    "Forgetting \"type\": \"module\" (must match @crono/db and ESM imports)",
+    "Using nodemon instead of tsx watch for TypeScript ESM dev",
+    "Skipping workspace deps @crono/db, @crono/queue, @crono/shared — backend imports them later"
+  ],
+  "_verify": "npm install && npm run build -w backend (after tsconfig + src/index.ts exist)",
+  "name": "backend",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "_dependencies_note": "Phase 4 uses express, cors, dotenv, zod + workspace packages. Auth/billing deps listed now so you install once — wired in Phases 5+.",
+  "dependencies": {
+    "@crono/db": "*",
+    "@crono/queue": "*",
+    "@crono/shared": "*",
+    "axios": "^1.7.0",
+    "bcryptjs": "^2.4.3",
+    "bullmq": "^5.34.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^5.0.0",
+    "ioredis": "^5.10.1",
+    "jsonwebtoken": "^9.0.0",
+    "resend": "^3.0.0",
+    "stripe": "^14.0.0",
+    "zod": "^3.23.0"
+  },
+  "_devDependencies_note": "tsx = run TypeScript in dev without nodemon. @types/* for Express 5, JWT, bcrypt.",
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.0",
+    "@types/node": "^20.17.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.3"
+  }
+}
