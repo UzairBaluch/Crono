@@ -1,0 +1,25 @@
+{
+  // JOB: TypeScript compile settings for apps/backend — ESM + strict, src → dist
+  // MATCH: same NodeNext pattern as @crono/db and @crono/queue
+  // COMMON MISTAKES:
+  //   - "module": "CommonJS" — breaks ESM imports and .js extension paths
+  //   - Forgetting rootDir/outDir — tsc emits files in wrong places
+  //   - Not including src/types/**/*.d.ts — Express Request.user augmentation won't apply
+  // VERIFY (after src/index.ts exists): npm run build -w backend
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "dist",
+    "rootDir": "src",
+    "strict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "skipLibCheck": true,
+    "lib": ["ES2022"],
+    "moduleDetection": "force",
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
