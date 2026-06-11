@@ -1,8 +1,8 @@
-import { parseExpression } from "cron-parser";
+import cronParser from "cron-parser";
 
 export function isValidCron(expression: string): boolean {
   try {
-    parseExpression(expression);
+    cronParser.parseExpression(expression);
     return true;
   } catch {
     return false;
