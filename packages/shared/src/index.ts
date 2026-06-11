@@ -1,15 +1,11 @@
-// JOB: public entry point for @crono/shared — re-export helpers + constants only
-// IMPORTS/EXPORTS:
-//   - Re-export generateApiKey from ./apiKey.js
-//   - Re-export isValidCron from ./cron.js
-//   - Re-export PLAN_LIMITS, JOB_STATUS from ./constants.js
-//   - Other packages import from "@crono/shared" (never deep paths like @crono/shared/src/cron)
-// COMMON MISTAKES:
-//   - Forgetting .js in relative paths (NodeNext ESM — TypeScript compiles .ts → .js)
-//   - Adding DB, env, or HTTP imports here — this package stays pure
-//   - Exporting new symbols without adding them to this file (barrel must stay in sync)
-// VERIFY: npm run build -w @crono/shared
-
-export { generateApiKey } from "./apiKey.js";
-export { isValidCron } from "./cron.js";
-export { PLAN_LIMITS, JOB_STATUS } from "./constants.js";
+// Re-export everything from this package so other apps can do:
+//   import { generateApiKey, isValidCron, PLAN_LIMITS, JOB_STATUS } from "@crono/shared"
+//
+// Steps:
+// 1. export { generateApiKey } from "./apiKey.js"
+// 2. export { isValidCron } from "./cron.js"
+// 3. export { PLAN_LIMITS, JOB_STATUS } from "./constants.js"
+//
+// Note: use .js in import paths (ESM + TypeScript)
+//
+// Verify: npm run build -w @crono/shared
