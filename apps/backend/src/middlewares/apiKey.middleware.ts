@@ -1,5 +1,29 @@
 import type { Request, Response, NextFunction } from "express";
+import { userRepository } from "../repositories/user.repository.js";
+import { ApiError } from "../utils/ApiError.js";
 
-export function apiKey(req: Request, res: Response, next: NextFunction) {
-  next();
+export async function apiKey(req: Request, res: Response, next: NextFunction) {
+  try {
+    const header = req.headers["x-api-key"];
+    const key =
+      typeof header === "string"
+        ? header
+        : Array.isArray(header)
+          ? header[0]
+          : undefined;
+
+    if (!key) {
+      throw new ApiError("Unauthorized", 401);
+    }
+
+    const user = await userRepository.findByApiKey(key);
+    if (!user) {
+      throw new ApiError("Unauthorized", 401);
+    }
+
+    req.user = user;
+    next();
+  } catch (err) {
+    next(err);
+  }
 }
