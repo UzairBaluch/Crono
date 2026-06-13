@@ -219,74 +219,198 @@ export const HOW_IT_WORKS = [
 export const PRICING_PLANS = [
   {
     name: "Free",
+    slug: "free",
+    tagline: "Try before you ship",
+    bestFor: "Side projects & learning",
     priceMonthly: 0,
     priceYearly: 0,
     jobs: 3,
     logRetention: "7 days",
     retries: "3×",
-    highlights: ["REST API access", "JWT + API keys", "Dashboard", "Cron validation"],
-    cta: "Start Free",
+    timeout: "30s",
+    alerts: "—",
+    apiAccess: true,
+    highlights: [
+      "3 active jobs",
+      "REST API + dashboard",
+      "JWT + API keys",
+      "Cron validation",
+      "7-day log retention",
+    ],
+    cta: "Start free",
     featured: false,
   },
   {
     name: "Starter",
+    slug: "starter",
+    tagline: "Ship scheduled tasks",
+    bestFor: "Indie SaaS & small teams",
     priceMonthly: 9,
     priceYearly: 7,
     jobs: 50,
     logRetention: "30 days",
     retries: "3×",
+    timeout: "30s",
+    alerts: "Email + webhooks",
+    apiAccess: true,
     highlights: [
-      "Everything in Free",
+      "50 active jobs",
       "Email failure alerts",
       "Slack & Discord webhooks",
       "Missed-run alerts",
+      "30-day log retention",
     ],
-    cta: "Upgrade",
+    cta: "Start Starter",
     featured: true,
   },
   {
     name: "Pro",
+    slug: "pro",
+    tagline: "Scale with confidence",
+    bestFor: "Production workloads",
     priceMonthly: 29,
     priceYearly: 23,
     jobs: 500,
     logRetention: "90 days",
     retries: "5×",
+    timeout: "30s",
+    alerts: "All channels",
+    apiAccess: true,
     highlights: [
-      "Everything in Starter",
+      "500 active jobs",
       "Priority infrastructure",
       "HMAC signed requests",
-      "Extended API limits",
+      "5× retries",
+      "90-day log retention",
     ],
-    cta: "Upgrade",
+    cta: "Go Pro",
     featured: false,
   },
+];
+
+export const PRICING_COMPARE_ROWS = [
+  { label: "Active jobs", free: "3", starter: "50", pro: "500" },
+  { label: "Log retention", free: "7 days", starter: "30 days", pro: "90 days" },
+  { label: "Retries", free: "3×", starter: "3×", pro: "5×" },
+  { label: "Email alerts", free: false, starter: true, pro: true },
+  { label: "Slack / Discord", free: false, starter: true, pro: true },
+  { label: "Missed-run alerts", free: false, starter: true, pro: true },
+  { label: "HMAC signing", free: false, starter: false, pro: true },
+  { label: "API access", free: true, starter: true, pro: true },
+];
+
+export const CRON_BUILDER_PRESETS = [
+  { label: "Every minute", cron: "* * * * *", human: "Runs every minute", next: "in 42 sec" },
+  { label: "Every 5 min", cron: "*/5 * * * *", human: "Runs every 5 minutes", next: "in 3 min" },
+  { label: "Hourly", cron: "0 * * * *", human: "Runs at minute 0 every hour", next: "in 18 min" },
+  { label: "Daily 9am", cron: "0 9 * * *", human: "Runs daily at 9:00 AM", next: "tomorrow 9:00" },
+  { label: "Weekdays 9am", cron: "0 9 * * 1-5", human: "Mon–Fri at 9:00 AM", next: "Mon 9:00" },
+  { label: "Monthly", cron: "0 0 1 * *", human: "1st of every month at midnight", next: "Jul 1" },
+] as const;
+
+export const AUTH_DEMO = {
+  register: {
+    endpoint: "POST /api/v1/auth/register → 201",
+    request: `curl -X POST http://localhost:4000/api/v1/auth/register \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "email": "you@startup.com",
+    "password": "securepassword123"
+  }'`,
+    response: `{
+  "success": true,
+  "data": {
+    "token": "eyJhbGci…",
+    "user": {
+      "email": "you@startup.com",
+      "plan": "free",
+      "api_key": "cron_live_…"
+    }
+  }
+}`,
+  },
+  login: {
+    endpoint: "POST /api/v1/auth/login → 200",
+    request: `curl -X POST http://localhost:4000/api/v1/auth/login \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "email": "you@startup.com",
+    "password": "securepassword123"
+  }'`,
+    response: `{
+  "success": true,
+  "data": {
+    "token": "eyJhbGci…",
+    "user": {
+      "email": "you@startup.com",
+      "plan": "free"
+    }
+  }
+}`,
+  },
+};
+
+export const LOGS_DEMO_ENTRIES = [
+  { id: "1", job: "billing-sync", status: "success" as const, code: 200, ms: 143, time: "2m ago" },
+  { id: "2", job: "user-prune", status: "failed" as const, code: 504, ms: 30012, time: "7m ago" },
+  { id: "3", job: "health-check", status: "success" as const, code: 200, ms: 86, time: "12m ago" },
+  { id: "4", job: "weekly-report", status: "retrying" as const, code: 502, ms: 2100, time: "15m ago" },
+  { id: "5", job: "sync-users", status: "success" as const, code: 201, ms: 221, time: "1h ago" },
+];
+
+export const VALUE_STATS = [
+  { label: "Avg setup time", value: "< 2 min", hint: "Register → first job" },
+  { label: "Free plan jobs", value: "3", hint: "No credit card" },
+  { label: "API endpoints", value: "12+", hint: "Auth + jobs + health" },
+  { label: "Retry attempts", value: "3×", hint: "Exponential backoff" },
 ];
 
 export const FAQS = [
   {
     q: "What is Crono?",
     a: "Crono schedules HTTP jobs and gives you execution logs, retries, and failure alerts in one place — no VPS cron required.",
+    category: "product" as const,
+    related: { href: "#api", label: "Try create job demo" },
   },
   {
     q: "What's live today vs coming soon?",
     a: "Job CRUD, auth, plan limits, and cron validation are live. Scheduler, worker, logs, alerts, and billing ship in upcoming phases.",
+    category: "product" as const,
+    related: { href: "#features", label: "See feature grid" },
   },
   {
     q: "Can I use the API instead of the dashboard?",
     a: "Yes. Create and manage jobs with JWT (dashboard) or x-api-key (scripts/CI). Full REST API under /api/v1.",
+    category: "api" as const,
+    related: { href: "#auth-demo", label: "Auth demo" },
   },
   {
     q: "What happens when a job fails?",
     a: "Failures are logged with HTTP status and duration. After retries exhaust, email and webhook alerts fire (Starter+).",
+    category: "api" as const,
+    related: { href: "#reliability", label: "Retry simulator" },
   },
   {
     q: "How do plan limits work?",
     a: "Free plan allows 3 active jobs. Creating a 4th returns 403 Plan limit reached. Upgrade via Stripe when billing ships.",
+    category: "billing" as const,
+    related: { href: "#plan-demo", label: "Try plan limit demo" },
   },
   {
     q: "Do you support timezones?",
     a: "Yes. Each job accepts a timezone field (default UTC) so schedules run in your local business hours.",
+    category: "api" as const,
+    related: { href: "#cron", label: "Cron builder" },
   },
+];
+
+export type FaqCategory = "all" | "product" | "api" | "billing";
+
+export const FAQ_CATEGORIES: { id: FaqCategory; label: string }[] = [
+  { id: "all", label: "All" },
+  { id: "product", label: "Product" },
+  { id: "api", label: "API" },
+  { id: "billing", label: "Billing" },
 ];
 
 export const SCHEDULE_PRESETS = [

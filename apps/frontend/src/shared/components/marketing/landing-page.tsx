@@ -3,16 +3,22 @@
 import { useEffect, useState } from "react";
 import { LandingAlertsSection } from "@/shared/components/marketing/landing-alerts-section";
 import { LandingApiSection } from "@/shared/components/marketing/landing-api-section";
+import { LandingAuthDemo } from "@/shared/components/marketing/landing-auth-demo";
+import { LandingContactSection } from "@/shared/components/marketing/landing-contact-section";
+import { LandingCronBuilder } from "@/shared/components/marketing/landing-cron-builder";
 import { LandingCrudSection } from "@/shared/components/marketing/landing-crud-section";
 import { LandingFaq } from "@/shared/components/marketing/landing-faq";
 import { LandingFeatures } from "@/shared/components/marketing/landing-features";
 import { LandingFooter } from "@/shared/components/marketing/landing-footer";
 import { LandingHeader } from "@/shared/components/marketing/landing-header";
+import { LandingHealthDemo } from "@/shared/components/marketing/landing-health-demo";
 import { LandingHero } from "@/shared/components/marketing/landing-hero";
 import { LandingInteractiveNav } from "@/shared/components/marketing/landing-interactive-nav";
+import { LandingLogsDemo } from "@/shared/components/marketing/landing-logs-demo";
 import { LandingPlanDemo } from "@/shared/components/marketing/landing-plan-demo";
 import { LandingPricing } from "@/shared/components/marketing/landing-pricing";
 import { LandingRetrySection } from "@/shared/components/marketing/landing-retry-section";
+import { LandingStatsStrip } from "@/shared/components/marketing/landing-stats-strip";
 import { API_RESPONSES } from "@/shared/lib/marketing-content";
 import type { FeatureCategory } from "@/shared/lib/marketing-content";
 
@@ -22,6 +28,7 @@ export function LandingPage() {
   const [activeFeatureFilter, setActiveFeatureFilter] =
     useState<FeatureCategory>("all");
   const [isYearly, setIsYearly] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState("starter");
   const [featureTransitionKey, setFeatureTransitionKey] = useState(0);
 
   const [apiTab, setApiTab] = useState<"jwt" | "apiKey">("jwt");
@@ -31,8 +38,20 @@ export function LandingPage() {
   const [crudTab, setCrudTab] = useState<"list" | "pause" | "delete">("list");
   const [crudStatus, setCrudStatus] = useState("200");
 
-  const [retryStep, setRetryStep] = useState("attempt1");
+  const [cronIndex, setCronIndex] = useState(2);
+  const [authTab, setAuthTab] = useState<"register" | "login">("register");
 
+  const [logFilter, setLogFilter] = useState<
+    "all" | "success" | "failed" | "retrying"
+  >("all");
+  const [selectedLogId, setSelectedLogId] = useState<string | null>("1");
+
+  const [healthPinging, setHealthPinging] = useState(false);
+  const [healthResponse, setHealthResponse] = useState(
+    '// Click "Ping health" to check API + DB + Redis',
+  );
+
+  const [retryStep, setRetryStep] = useState("attempt1");
   const [alertChannel, setAlertChannel] = useState<
     "email" | "slack" | "discord"
   >("email");
@@ -68,6 +87,24 @@ export function LandingPage() {
     setPlanResponse(null);
   }
 
+  async function handleHealthPing() {
+    setHealthPinging(true);
+    setHealthResponse("// Checking postgres + redis…");
+    await new Promise((r) => setTimeout(r, 700));
+    setHealthResponse(`{
+  "success": true,
+  "data": {
+    "status": "ok",
+    "timestamp": "${new Date().toISOString()}",
+    "services": {
+      "postgres": "connected",
+      "redis": "connected"
+    }
+  }
+}`);
+    setHealthPinging(false);
+  }
+
   return (
     <main className="min-h-screen bg-background">
       <LandingHeader
@@ -82,8 +119,8 @@ export function LandingPage() {
         />
 
         <LandingInteractiveNav />
+        <LandingStatsStrip />
 
-        {/* Interactive demos first — users play here before scrolling to features */}
         <LandingApiSection
           activeTab={apiTab}
           onTabChange={setApiTab}
@@ -96,6 +133,23 @@ export function LandingPage() {
           onTabChange={setCrudTab}
           activeStatus={crudStatus}
           onStatusChange={setCrudStatus}
+        />
+
+        <LandingCronBuilder activeIndex={cronIndex} onSelect={setCronIndex} />
+
+        <LandingAuthDemo activeTab={authTab} onTabChange={setAuthTab} />
+
+        <LandingLogsDemo
+          activeFilter={logFilter}
+          onFilterChange={setLogFilter}
+          selectedId={selectedLogId}
+          onSelect={setSelectedLogId}
+        />
+
+        <LandingHealthDemo
+          pinging={healthPinging}
+          response={healthResponse}
+          onPing={handleHealthPing}
         />
 
         <LandingPlanDemo
@@ -121,9 +175,16 @@ export function LandingPage() {
           transitionKey={featureTransitionKey}
         />
 
-        <LandingPricing isYearly={isYearly} onToggleYearly={setIsYearly} />
+        <LandingPricing
+          isYearly={isYearly}
+          onToggleYearly={setIsYearly}
+          selectedPlan={selectedPlan}
+          onSelectPlan={setSelectedPlan}
+        />
 
         <LandingFaq />
+
+        <LandingContactSection />
       </div>
 
       <LandingFooter />
