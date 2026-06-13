@@ -5,6 +5,7 @@ import { LandingAlertsSection } from "@/shared/components/marketing/landing-aler
 import { LandingApiSection } from "@/shared/components/marketing/landing-api-section";
 import { LandingAuthDemo } from "@/shared/components/marketing/landing-auth-demo";
 import { LandingContactSection } from "@/shared/components/marketing/landing-contact-section";
+import type { ContactPrefill } from "@/shared/components/marketing/landing-contact-section";
 import { LandingCronBuilder } from "@/shared/components/marketing/landing-cron-builder";
 import { LandingCrudSection } from "@/shared/components/marketing/landing-crud-section";
 import { LandingFaq } from "@/shared/components/marketing/landing-faq";
@@ -58,6 +59,9 @@ export function LandingPage() {
 
   const [jobCount, setJobCount] = useState(0);
   const [planResponse, setPlanResponse] = useState<string | null>(null);
+  const [contactPrefill, setContactPrefill] = useState<ContactPrefill | null>(
+    null,
+  );
 
   useEffect(() => {
     setFeatureTransitionKey((current) => current + 1);
@@ -103,6 +107,14 @@ export function LandingPage() {
   }
 }`);
     setHealthPinging(false);
+  }
+
+  function handleNotifyFeature(featureTitle: string) {
+    setContactPrefill({
+      topic: "feedback",
+      message: `Notify me when "${featureTitle}" ships.`,
+    });
+    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
   }
 
   return (
@@ -173,6 +185,7 @@ export function LandingPage() {
           activeFilter={activeFeatureFilter}
           onFilterChange={setActiveFeatureFilter}
           transitionKey={featureTransitionKey}
+          onNotifyFeature={handleNotifyFeature}
         />
 
         <LandingPricing
@@ -184,7 +197,10 @@ export function LandingPage() {
 
         <LandingFaq />
 
-        <LandingContactSection />
+        <LandingContactSection
+          prefill={contactPrefill}
+          onPrefillConsumed={() => setContactPrefill(null)}
+        />
       </div>
 
       <LandingFooter />

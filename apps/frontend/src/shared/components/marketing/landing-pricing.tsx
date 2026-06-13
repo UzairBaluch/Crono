@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { Check, Minus, Sparkles } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
@@ -9,6 +10,7 @@ import {
   PRICING_PLANS,
 } from "@/shared/lib/marketing-content";
 import { themeClasses } from "@/shared/lib/theme";
+import { cn } from "@/shared/lib/utils";
 
 interface LandingPricingProps {
   isYearly: boolean;
@@ -16,6 +18,8 @@ interface LandingPricingProps {
   selectedPlan: string;
   onSelectPlan: (slug: string) => void;
 }
+
+type PlanSlug = "free" | "starter" | "pro";
 
 function CompareCell({ value }: { value: boolean | string }) {
   if (typeof value === "boolean") {
@@ -28,12 +32,30 @@ function CompareCell({ value }: { value: boolean | string }) {
   return <span className="text-sm text-foreground">{value}</span>;
 }
 
+function planColumnClass(
+  plan: PlanSlug,
+  selectedPlan: string,
+  hoveredRow: string | null,
+  rowLabel: string,
+) {
+  const isSelected = selectedPlan === plan;
+  const rowActive = hoveredRow === rowLabel;
+
+  return cn(
+    "px-4 py-3 text-center transition-all duration-200",
+    isSelected && "bg-accent-subtle/10",
+    rowActive && isSelected && "bg-accent-subtle/35 ring-1 ring-inset ring-accent-muted/40",
+    rowActive && !isSelected && "bg-card-secondary/40",
+  );
+}
+
 export function LandingPricing({
   isYearly,
   onToggleYearly,
   selectedPlan,
   onSelectPlan,
 }: LandingPricingProps) {
+  const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const selected = PRICING_PLANS.find((p) => p.slug === selectedPlan);
 
   return (
@@ -47,8 +69,8 @@ export function LandingPricing({
           Pricing that grows with you
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-sm text-muted md:text-base">
-          Plan limits enforced in the API today. Click a plan to compare — Stripe
-          checkout ships soon.
+          Plan limits enforced in the API today. Click a plan to compare — hover
+          rows to highlight your selection.
         </p>
 
         <div className={`mx-auto mt-6 inline-flex ${themeClasses.pricingToggle.wrapper}`}>
@@ -195,27 +217,51 @@ export function LandingPricing({
           <thead className="bg-card-secondary/60">
             <tr className="border-b border-border/80">
               <th className="px-4 py-3 font-medium text-muted">Compare</th>
-              <th className="px-4 py-3 text-center font-medium">Free</th>
-              <th className="px-4 py-3 text-center font-medium text-accent">
-                Starter
-              </th>
-              <th className="px-4 py-3 text-center font-medium">Pro</th>
+              {(["free", "starter", "pro"] as const).map((plan) => (
+                <th
+                  key={plan}
+                  className={cn(
+                    "px-4 py-3 text-center font-medium capitalize transition-colors",
+                    selectedPlan === plan && "bg-accent-subtle/20 text-accent",
+                  )}
+                >
+                  {plan === "starter" ? (
+                    <span className="text-accent">Starter</span>
+                  ) : (
+                    plan.charAt(0).toUpperCase() + plan.slice(1)
+                  )}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
             {PRICING_COMPARE_ROWS.map((row) => (
               <tr
                 key={row.label}
-                className="border-b border-border/50 transition-colors hover:bg-accent-subtle/20"
+                onMouseEnter={() => setHoveredRow(row.label)}
+                onMouseLeave={() => setHoveredRow(null)}
+                className={cn(
+                  "border-b border-border/50 transition-colors",
+                  hoveredRow === row.label && "bg-accent-subtle/15",
+                )}
               >
-                <td className="px-4 py-3 text-muted">{row.label}</td>
-                <td className="px-4 py-3 text-center">
+                <td
+                  className={cn(
+                    "px-4 py-3 transition-colors",
+                    hoveredRow === row.label
+                      ? "font-medium text-foreground"
+                      : "text-muted",
+                  )}
+                >
+                  {row.label}
+                </td>
+                <td className={planColumnClass("free", selectedPlan, hoveredRow, row.label)}>
                   <CompareCell value={row.free} />
                 </td>
-                <td className="px-4 py-3 text-center bg-accent-subtle/10">
+                <td className={planColumnClass("starter", selectedPlan, hoveredRow, row.label)}>
                   <CompareCell value={row.starter} />
                 </td>
-                <td className="px-4 py-3 text-center">
+                <td className={planColumnClass("pro", selectedPlan, hoveredRow, row.label)}>
                   <CompareCell value={row.pro} />
                 </td>
               </tr>

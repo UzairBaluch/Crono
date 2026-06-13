@@ -36,6 +36,7 @@ export interface MarketingFeature {
   title: string;
   description: string;
   icon: LucideIcon;
+  demoHref?: string;
 }
 
 export const FEATURE_CATEGORIES: { key: FeatureCategory; label: string }[] = [
@@ -55,6 +56,7 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
     description:
       "Call any public URL on a schedule with custom headers and JSON body.",
     icon: Globe,
+    demoHref: "#api",
   },
   {
     category: "scheduling",
@@ -63,6 +65,7 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
     description:
       "Standard cron expressions with timezone support — e.g. America/New_York.",
     icon: CalendarClock,
+    demoHref: "#cron",
   },
   {
     category: "scheduling",
@@ -71,6 +74,7 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
     description:
       "Stop a job without deleting it. Resume from the dashboard or API.",
     icon: PauseCircle,
+    demoHref: "#playground",
   },
   {
     category: "reliability",
@@ -78,6 +82,7 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
     title: "Retries with exponential backoff",
     description: "3 attempts by default: 5s → 30s → 2min on transient failures.",
     icon: Zap,
+    demoHref: "#reliability",
   },
   {
     category: "reliability",
@@ -85,6 +90,7 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
     title: "30s hard timeout",
     description: "Outbound requests abort after 30s so workers never hang.",
     icon: Timer,
+    demoHref: "#reliability",
   },
   {
     category: "reliability",
@@ -101,6 +107,7 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
     description:
       "Dead man's switch — know when a job didn't fire, not only when it failed.",
     icon: Clock,
+    demoHref: "#alerts",
   },
   {
     category: "visibility",
@@ -109,6 +116,7 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
     description:
       "Every run stored: status, HTTP code, duration, response snippet, errors.",
     icon: Logs,
+    demoHref: "#logs-demo",
   },
   {
     category: "visibility",
@@ -116,6 +124,7 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
     title: "Log retention by plan",
     description: "7 / 30 / 90 days on Free, Starter, and Pro.",
     icon: Layers,
+    demoHref: "#pricing",
   },
   {
     category: "visibility",
@@ -124,6 +133,7 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
     description:
       "GET /api/v1/health — Postgres and Redis verified before traffic routes.",
     icon: Activity,
+    demoHref: "#health",
   },
   {
     category: "reliability",
@@ -131,6 +141,7 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
     title: "Email failure alerts",
     description: "Resend email when a job fails after all retries.",
     icon: BellRing,
+    demoHref: "#alerts",
   },
   {
     category: "reliability",
@@ -138,6 +149,7 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
     title: "Slack & Discord webhooks",
     description: "Route failures to the channels your team already monitors.",
     icon: MessageSquare,
+    demoHref: "#alerts",
   },
   {
     category: "developer",
@@ -145,6 +157,7 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
     title: "REST API under /api/v1",
     description: "Full job CRUD — create, list, update, pause, delete.",
     icon: Terminal,
+    demoHref: "#api",
   },
   {
     category: "developer",
@@ -153,6 +166,7 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
     description:
       "Bearer tokens for the dashboard. cron_… keys for scripts and CI.",
     icon: KeyRound,
+    demoHref: "#auth-demo",
   },
   {
     category: "developer",
@@ -160,6 +174,7 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
     title: "Plan limits enforced server-side",
     description: "3 / 50 / 500 active jobs on Free, Starter, Pro — returns 403.",
     icon: ShieldCheck,
+    demoHref: "#plan-demo",
   },
   {
     category: "developer",
@@ -167,6 +182,7 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
     title: "Stripe billing",
     description: "Checkout, customer portal, webhooks sync plan to Postgres.",
     icon: CreditCard,
+    demoHref: "#pricing",
   },
   {
     category: "security",
@@ -174,6 +190,7 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
     title: "Tenant isolation",
     description: "Every job scoped to your account — no cross-user access.",
     icon: Lock,
+    demoHref: "#playground",
   },
   {
     category: "security",
@@ -200,19 +217,73 @@ export const PAIN_POINTS = [
 
 export const HOW_IT_WORKS = [
   {
+    id: "create",
     step: "01",
     title: "Create a job",
     desc: "Add URL, cron schedule, method, headers, and timezone via API or dashboard.",
+    demoHref: "#api",
+    demoLabel: "Create job demo",
+    previewLabel: "POST /api/v1/jobs",
+    preview: `curl -X POST http://localhost:4000/api/v1/jobs \\
+  -H "Authorization: Bearer <token>" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "name": "Daily report",
+    "url": "https://yourapp.com/api/report",
+    "schedule": "0 9 * * *",
+    "timezone": "America/New_York"
+  }'`,
+    response: `{
+  "success": true,
+  "data": {
+    "job": {
+      "id": "8f7dd95d-…",
+      "name": "Daily report",
+      "status": "active"
+    }
+  }
+}`,
   },
   {
+    id: "schedule",
     step: "02",
     title: "Crono schedules it",
     desc: "BullMQ repeat jobs fire on time. Worker executes with retries and timeouts.",
+    demoHref: "#cron",
+    demoLabel: "Cron builder",
+    previewLabel: "BullMQ repeat job",
+    preview: `// Scheduler registers repeat job
+{
+  "schedule": "0 9 * * *",
+  "timezone": "America/New_York",
+  "bull_job_id": "repeat:abc123…"
+}`,
+    response: `{
+  "success": true,
+  "data": {
+    "status": "active",
+    "nextRun": "2026-06-14T09:00:00-04:00"
+  }
+}`,
   },
   {
+    id: "inspect",
     step: "03",
     title: "Inspect & alert",
     desc: "Logs, failure emails, and Slack/Discord when something breaks.",
+    demoHref: "#logs-demo",
+    demoLabel: "Logs demo",
+    previewLabel: "GET /api/v1/jobs/:id/logs",
+    preview: `curl http://localhost:4000/api/v1/jobs/<jobId>/logs \\
+  -H "Authorization: Bearer <token>"`,
+    response: `{
+  "success": true,
+  "data": {
+    "logs": [
+      { "status": "success", "http_code": 200, "duration_ms": 143 }
+    ]
+  }
+}`,
   },
 ];
 
@@ -359,10 +430,30 @@ export const LOGS_DEMO_ENTRIES = [
 ];
 
 export const VALUE_STATS = [
-  { label: "Avg setup time", value: "< 2 min", hint: "Register → first job" },
-  { label: "Free plan jobs", value: "3", hint: "No credit card" },
-  { label: "API endpoints", value: "12+", hint: "Auth + jobs + health" },
-  { label: "Retry attempts", value: "3×", hint: "Exponential backoff" },
+  {
+    label: "Avg setup time",
+    value: "< 2 min",
+    hint: "Register → first job",
+    href: "#auth-demo",
+  },
+  {
+    label: "Free plan jobs",
+    value: "3",
+    hint: "No credit card",
+    href: "#plan-demo",
+  },
+  {
+    label: "API endpoints",
+    value: "12+",
+    hint: "Auth + jobs + health",
+    href: "#api",
+  },
+  {
+    label: "Retry attempts",
+    value: "3×",
+    hint: "Exponential backoff",
+    href: "#reliability",
+  },
 ];
 
 export const FAQS = [

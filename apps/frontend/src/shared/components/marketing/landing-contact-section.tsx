@@ -1,17 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Send, Star } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
 
 type FormState = "idle" | "submitting" | "success";
 
-export function LandingContactSection() {
+export interface ContactPrefill {
+  topic: string;
+  message: string;
+}
+
+interface LandingContactSectionProps {
+  prefill?: ContactPrefill | null;
+  onPrefillConsumed?: () => void;
+}
+
+export function LandingContactSection({
+  prefill,
+  onPrefillConsumed,
+}: LandingContactSectionProps) {
   const [formState, setFormState] = useState<FormState>("idle");
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [topic, setTopic] = useState("feedback");
+  const [message, setMessage] = useState("");
+  const messageRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (!prefill) return;
+    setTopic(prefill.topic);
+    setMessage(prefill.message);
+    setFormState("idle");
+    onPrefillConsumed?.();
+    requestAnimationFrame(() => {
+      messageRef.current?.focus();
+    });
+  }, [prefill, onPrefillConsumed]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -33,7 +59,10 @@ export function LandingContactSection() {
           <Button
             variant="secondary"
             className="mt-6 h-10"
-            onClick={() => setFormState("idle")}
+            onClick={() => {
+              setFormState("idle");
+              setMessage("");
+            }}
           >
             Send another
           </Button>
@@ -146,9 +175,12 @@ export function LandingContactSection() {
             <label className="block space-y-1.5 text-sm">
               <span className="text-muted">Message</span>
               <textarea
+                ref={messageRef}
                 required
                 name="message"
                 rows={4}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
                 placeholder="What would make Crono a must-have for your stack?"
                 className="focus-ring w-full rounded-xl border border-border bg-card-secondary px-3 py-2 text-foreground outline-none"
               />
