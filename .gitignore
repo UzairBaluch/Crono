@@ -11,4 +11,5 @@ yarn-error.log*
 pnpm-debug.log*
 coverage/
 packages/*/dist/
+apps/backend/dist/
 CRONO_BUILD_CHECKLIST.md
