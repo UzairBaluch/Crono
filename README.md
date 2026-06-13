@@ -1,18 +1,30 @@
-# 🐦 Crono
+<p align="center">
+  <strong>Crono</strong>
+</p>
 
-Private SaaS platform for reliable scheduled HTTP jobs.
+<p align="center">
+  Schedule HTTP jobs. Get logs. Get alerted when things break.
+</p>
 
-[Quick Start](#quick-start) · [API Docs](#api-reference) · [Deployment](#deployment) · [Pricing](#pricing)
+<p align="center">
+  <a href="#quick-start">Quick Start</a> ·
+  <a href="#features">Features</a> ·
+  <a href="#pricing">Pricing</a> ·
+  <a href="#api">API</a> ·
+  <a href="#roadmap">Roadmap</a>
+</p>
 
-## What is Crono?
+---
 
-Crono lets you schedule HTTP jobs via a simple REST API or dashboard — with retries, logs, and failure alerts built in.
-No VPS cron tab. No silent failures at 3am. No $200/mo monitoring bills.
+## The problem
+
+Your app needs to hit an endpoint on a schedule — daily reports, cleanup tasks, webhook retries. You could run cron on a VPS, but then you're on the hook for silent failures, no history, and no alerts at 3am.
+
+**Crono** is a hosted-style cron API: create jobs over REST, track runs, and get notified when something fails — without babysitting infrastructure.
 
 ```bash
-# Schedule a job in one API call
-curl -X POST https://api.crono.dev/jobs \
-  -H "x-api-key: cron_your_api_key" \
+curl -X POST http://localhost:4000/api/v1/jobs \
+  -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Daily report",
@@ -23,598 +35,349 @@ curl -X POST https://api.crono.dev/jobs \
   }'
 ```
 
+---
+
 ## Who it's for
 
-**Indie SaaS founders and backend devs** who need to call their own HTTP endpoints on a schedule — with retries, history, and alerts when something breaks — without maintaining cron on a VPS.
-
-## Features
-
-### Schedule & execute
-
-- **HTTP jobs** — `GET` or `POST` to any public URL, with custom headers and JSON body
-- **Cron schedules** — standard expressions plus **per-job timezone** (e.g. `America/New_York`)
-- **Pause & resume** — stop a job instantly without deleting it (dashboard or API)
-- **Hard timeouts** — outbound requests abort after 30s so workers never hang
-
-### Reliability you can see
-
-- **Automatic retries** — 3 attempts with exponential backoff (5s → 30s → 2min) on failure
-- **Execution logs** — every run stored: status, HTTP code, duration, response snippet, error message
-- **Log retention by plan** — 7 / 30 / 90 days (Free / Starter / Pro)
-- **Failure alerts** — email when a job fails after retries (know before users complain)
-- **Missed-run alerts** — dead man's switch if a job *didn't* fire on schedule
-- **Slack & Discord webhooks** — route failures to chat, not only email
-- **Separate worker process** — scheduling (API) and firing (worker) scale independently on Railway
-- **Readiness checks** — `GET /api/v1/health/ready` verifies Postgres and Redis before traffic
-
-### Built for developers
-
-- **REST API** — full CRUD for jobs and logs under `/api/v1`
-- **Dual auth** — JWT for the dashboard, **API keys** (`cron_…`) for scripts and CI
-- **Plan limits enforced server-side** — 3 / 50 / 500 jobs (Free / Starter / Pro)
-- **Stripe billing** — upgrade, customer portal, webhooks keep `plan` in sync with Postgres
-- **Signed outbound requests** — optional HMAC headers so your API can verify Crono
-
-### Trust & security (production-minded)
-
-- **Tenant isolation** — every job and log scoped to your account; no cross-user access
-- **Validated inputs** — Zod on API bodies; cron expressions validated before schedule
-- **Safe outbound requests** — SSRF protections for private IPs and metadata URLs *(shipping in hardening phase)*
-- **Webhook integrity** — Stripe signatures verified on raw body before updating subscriptions
-
-### Dashboard
-
-- **Job table** — search, filter, create, edit, delete
-- **Run history** — per-job log stream with success/failed filters
-- **One-click controls** — pause, resume, copy API key, upgrade plan
-
-### Pricing
-
-| | Free | Starter | Pro |
-|---|:---:|:---:|:---:|
-| Active jobs | 3 | 50 | 500 |
-| Price | $0 | $9/mo | $29/mo |
-
-Details: [Pricing](#pricing).
+**Indie SaaS founders and backend developers** who need reliable scheduled HTTP calls — with retries, execution history, and failure alerts — managed through an API or dashboard.
 
 ---
 
-## Why this is a strong backend learning project
+## Features
 
-Building Crono end-to-end forces real production patterns (not a todo CRUD demo):
+### Shipped
 
-| You practice | Where it shows up in Crono |
+| | |
 |---|---|
-| Layered architecture | Routes → controllers → services → repositories (TypeScript + Zod) |
-| PostgreSQL design | Prisma schema, relations, migrations, cascade deletes |
-| Auth | bcrypt, JWT, API keys, per-tenant authorization |
-| Background jobs | BullMQ repeatable jobs, Redis, dedicated worker |
-| Distributed quirks | At-least-once runs, retries, idempotent webhook handling |
-| External integrations | Axios executor, Resend email, Stripe checkout + webhooks |
-| Ops | Docker Postgres/Redis, migrate on deploy, API + worker services |
+| **REST API** | Full job CRUD under `/api/v1` |
+| **Auth** | Register, login, JWT for dashboard, API keys (`cron_…`) for scripts |
+| **Tenant isolation** | Every job scoped to your account — no cross-user access |
+| **Plan limits** | Free / Starter / Pro enforced server-side (3 / 50 / 500 jobs) |
+| **Cron validation** | Invalid schedules rejected before save |
+| **Layered backend** | Routes → controllers → services → repositories (TypeScript + Zod) |
+| **Dashboard UI** | Next.js marketing + dashboard shell (mock data — wiring in progress) |
 
-See **`CRONO_BUILD_CHECKLIST.md`** for the phased build + production hardening checklist.
+### Coming soon
 
-## Tech Stack
+| | |
+|---|---|
+| **Scheduler** | BullMQ repeat jobs on create / pause / delete |
+| **Worker** | Dedicated process that fires jobs on schedule |
+| **Execution logs** | Status, HTTP code, duration, response snippet per run |
+| **Failure alerts** | Email via Resend when a job fails after retries |
+| **Stripe billing** | Checkout + webhooks to sync plan |
+| **Missed-run alerts** | Dead man's switch if a job never fired |
+| **Slack / Discord** | Route failures to chat |
+| **Deploy** | Railway (API + worker) + Vercel (frontend) |
+
+---
+
+## Pricing
+
+| | **Free** | **Starter** | **Pro** |
+|---|:---:|:---:|:---:|
+| Active jobs | 3 | 50 | 500 |
+| Log retention | 7 days | 30 days | 90 days |
+| Retries on failure | 3× | 3× | 5× |
+| Email alerts | ✓ | ✓ | ✓ |
+| API access | ✓ | ✓ | ✓ |
+| **Price** | **$0** | **$9/mo** | **$29/mo** |
+
+Limits are enforced in the API today. Billing integration ships in a later phase.
+
+---
+
+## Tech stack
 
 | Layer | Technology |
 |---|---|
-| API | Node.js + TypeScript + Express 5 |
-| Job Queue | BullMQ + Redis |
-| Database | PostgreSQL + Prisma |
-| Frontend | Next.js |
-| Billing | Stripe |
-| Email | Resend |
-| Deploy | Railway (API) + Vercel (Frontend) |
+| API | Node.js · TypeScript · Express 5 |
+| Queue | BullMQ · Redis |
+| Database | PostgreSQL · Prisma |
+| Frontend | Next.js · Tailwind |
+| Billing | Stripe *(planned)* |
+| Email | Resend *(planned)* |
+| Deploy | Railway + Vercel *(planned)* |
 
-## Quick Start
+Monorepo workspaces: `apps/backend`, `apps/frontend`, `apps/worker`, `packages/db`, `packages/queue`, `packages/shared`.
+
+---
+
+## Quick start
 
 ### Prerequisites
 
 - Node.js 18+
-- Docker (for local Postgres + Redis)
-- A Stripe account
-- A Resend account (free)
+- Docker (Postgres + Redis)
 
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/yourusername/crono.git
-cd crono
-
-# Install backend deps
-cd backend && npm install
-
-# Install frontend deps
-cd ../frontend && npm install
+git clone https://github.com/yourusername/crona.git
+cd crona
+npm install
 ```
 
-### 2. Start local infrastructure
+### 2. Environment
 
 ```bash
-# From project root
-docker-compose up -d
+cp .env.example .env
+# Edit .env — JWT_SECRET, DATABASE_URL (port 5433), REDIS_URL
 ```
 
-This starts PostgreSQL on port 5432 and Redis on port 6379.
-
-### 3. Set up environment variables
+### 3. Start infrastructure
 
 ```bash
-# Backend
-cp backend/.env.example backend/.env
-# Fill in your values (see Environment Variables section)
-
-# Frontend
-cp frontend/.env.example frontend/.env.local
+docker compose up -d
+npm run db:migrate -w @crono/db
 ```
 
-### 4. Run database migrations
+Postgres runs on **5433** (host). Redis on **6379**.
+
+### 4. Run dev servers
 
 ```bash
-cd backend && npm run migrate
+# Terminal 1 — API
+npm run dev -w backend
+
+# Terminal 2 — Frontend (optional)
+npm run dev -w frontend
 ```
 
-### 5. Start the development servers
+| Service | URL |
+|---|---|
+| API | http://localhost:4000 |
+| Frontend | http://localhost:3000 |
+| Health | http://localhost:4000/api/v1/health |
+
+### 5. Smoke test
 
 ```bash
-# Terminal 1 — API server
-cd backend && npm run dev
+# Register
+curl -X POST http://localhost:4000/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"you@example.com","password":"password123"}'
 
-# Terminal 2 — Background worker
-cd backend && npm run worker
-
-# Terminal 3 — Frontend
-cd frontend && npm run dev
+# Create job (use token from register response)
+curl -X POST http://localhost:4000/api/v1/jobs \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Ping","url":"https://httpbin.org/get","schedule":"0 * * * *"}'
 ```
 
-App is running at:
+---
 
-- Frontend: http://localhost:3000
-- API: http://localhost:4000
-
-## Repository Structure
+## Repository structure
 
 ```txt
-crono/
-├── backend/
-│   ├── src/
-│   │   ├── index.js          # Express entry point
-│   │   ├── worker.js         # BullMQ worker
-│   │   ├── config/
-│   │   │   ├── db.js         # PostgreSQL pool
-│   │   │   ├── redis.js      # Redis connection
-│   │   │   └── queue.js      # BullMQ queue
-│   │   ├── middleware/
-│   │   │   ├── auth.js       # JWT middleware
-│   │   │   └── apiKey.js     # API key middleware
-│   │   ├── routes/
-│   │   │   ├── auth.js       # Register / login
-│   │   │   ├── jobs.js       # Job CRUD
-│   │   │   ├── logs.js       # Execution logs
-│   │   │   └── billing.js    # Stripe billing
-│   │   ├── services/
-│   │   │   ├── scheduler.js  # BullMQ schedule/unschedule
-│   │   │   ├── executor.js   # HTTP request + log result
-│   │   │   └── alerts.js     # Failure email
-│   │   └── utils/
-│   │       ├── apiKey.js     # API key generator
-│   │       └── cron.js       # Cron expression validator
-│   └── package.json
-│
-├── frontend/
-│   ├── app/
-│   │   ├── page.js           # Landing page
-│   │   ├── dashboard/        # Job list + detail
-│   │   ├── login/
-│   │   ├── register/
-│   │   └── billing/
-│   ├── components/
-│   └── lib/api.js            # API fetch wrapper
-│
+Crona/
+├── apps/
+│   ├── backend/          # Express API (auth, jobs, health)
+│   ├── frontend/         # Next.js dashboard + landing
+│   └── worker/           # BullMQ worker (Phase 8)
+├── packages/
+│   ├── db/               # Prisma + Postgres
+│   ├── queue/            # BullMQ + Redis
+│   └── shared/           # API keys, cron utils, plan constants
 ├── docker-compose.yml
+├── .env.example
 └── README.md
 ```
 
-## Environment Variables
+---
 
-### backend/.env
+## API
 
-```env
-NODE_ENV=development
-PORT=4000
+Base URL: `/api/v1`
 
-# PostgreSQL
-DATABASE_URL=postgresql://postgres:password@localhost:5432/crono
+All success responses:
 
-# Redis
-REDIS_URL=redis://localhost:6379
-
-# Auth
-JWT_SECRET=change_this_to_a_long_random_string
-
-# Stripe
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-STRIPE_STARTER_PRICE_ID=price_...
-STRIPE_PRO_PRICE_ID=price_...
-
-# Email (Resend)
-RESEND_API_KEY=re_...
-
-# App URL (for Stripe redirect)
-APP_URL=http://localhost:3000
+```json
+{ "success": true, "data": { ... } }
 ```
 
-### frontend/.env.local
+Errors:
 
-```env
-NEXT_PUBLIC_API_URL=http://localhost:4000
+```json
+{ "success": false, "message": "..." }
 ```
-
-## API Reference
 
 ### Authentication
 
-All API routes accept either a JWT token (dashboard) or an API key (programmatic access).
-
-```bash
-# JWT — pass in Authorization header
-Authorization: Bearer <token>
-
-# API key — pass in x-api-key header
-x-api-key: cron_your_api_key
-```
+| Method | Header | Use case |
+|---|---|---|
+| JWT | `Authorization: Bearer <token>` | Dashboard, browser |
+| API key | `x-api-key: cron_…` | Scripts, CI *(jobs routes: JWT only for now)* |
 
 ### Auth
 
-#### Register
-
 ```http
-POST /auth/register
-Content-Type: application/json
-
-{
-  "email": "you@example.com",
-  "password": "yourpassword"
-}
+POST /api/v1/auth/register
+POST /api/v1/auth/login
+GET  /api/v1/auth/me          # JWT required
 ```
 
-Response
+**Register / login body**
+
+```json
+{ "email": "you@example.com", "password": "password123" }
+```
+
+**Response**
 
 ```json
 {
-  "token": "eyJhbGci...",
-  "user": {
-    "id": "uuid",
-    "email": "you@example.com",
-    "plan": "free",
-    "api_key": "cron_abc123..."
+  "success": true,
+  "data": {
+    "token": "eyJhbGci...",
+    "user": {
+      "id": "uuid",
+      "email": "you@example.com",
+      "plan": "free",
+      "api_key": "cron_..."
+    }
   }
-}
-```
-
-#### Login
-
-```http
-POST /auth/login
-Content-Type: application/json
-
-{
-  "email": "you@example.com",
-  "password": "yourpassword"
 }
 ```
 
 ### Jobs
 
-#### List all jobs
-
 ```http
-GET /jobs
-Authorization: Bearer <token>
+GET    /api/v1/jobs           # List jobs
+POST   /api/v1/jobs           # Create job
+GET    /api/v1/jobs/:id       # Get one job
+PATCH  /api/v1/jobs/:id       # Update (incl. pause/resume)
+DELETE /api/v1/jobs/:id       # Delete job
 ```
 
-Response
+**Create job body**
+
+| Field | Type | Required | Notes |
+|---|---|:---:|---|
+| `name` | string | ✓ | Display name |
+| `url` | string | ✓ | Valid URL |
+| `schedule` | string | ✓ | Cron expression |
+| `method` | string | | `GET` or `POST` (default: `GET`) |
+| `headers` | object | | Request headers |
+| `body` | string | | JSON body for POST |
+| `timezone` | string | | Default: `UTC` |
+| `retry_count` | number | | Default: `3` |
+
+**Pause / resume**
 
 ```json
-[
-  {
-    "id": "uuid",
-    "name": "Daily report",
-    "url": "https://yourapp.com/api/send-report",
-    "method": "POST",
-    "schedule": "0 9 * * *",
-    "timezone": "UTC",
-    "status": "active",
-    "created_at": "2024-01-01T00:00:00Z"
-  }
-]
+{ "status": "paused" }
+{ "status": "active" }
 ```
 
-#### Create a job
+**Status codes**
+
+| Code | Meaning |
+|:---:|---|
+| `201` | Job created |
+| `200` | Success |
+| `400` | Validation / invalid cron |
+| `401` | Missing or invalid auth |
+| `403` | Plan limit reached |
+| `404` | Job not found |
+| `409` | Email already registered |
+
+### Health
 
 ```http
-POST /jobs
-x-api-key: cron_your_api_key
-Content-Type: application/json
-
-{
-  "name": "Daily report",
-  "url": "https://yourapp.com/api/send-report",
-  "method": "POST",
-  "headers": { "Authorization": "Bearer secret" },
-  "body": "{\"type\": \"daily\"}",
-  "schedule": "0 9 * * *",
-  "timezone": "America/New_York"
-}
+GET /api/v1/health
 ```
 
-Fields
+---
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| name | string | yes | Human-readable job name |
-| url | string | yes | Endpoint to call |
-| method | string | no | GET or POST (default: GET) |
-| headers | object | no | Request headers |
-| body | string | no | Request body (JSON string) |
-| schedule | string | yes | Cron expression |
-| timezone | string | no | Timezone (default: UTC) |
-
-Response — 201 Created
-
-```json
-{
-  "id": "uuid",
-  "name": "Daily report",
-  "url": "https://yourapp.com/api/send-report",
-  "status": "active"
-}
-```
-
-#### Update a job
-
-```http
-PATCH /jobs/:id
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "status": "paused"
-}
-```
-
-Any field from create can be updated. To pause a job send `{ "status": "paused" }`. To resume send `{ "status": "active" }`.
-
-#### Delete a job
-
-```http
-DELETE /jobs/:id
-Authorization: Bearer <token>
-```
-
-Response — 200 OK
-
-```json
-{ "success": true }
-```
-
-### Logs
-
-#### Get logs for a job
-
-```http
-GET /logs/:jobId
-Authorization: Bearer <token>
-```
-
-Response
-
-```json
-[
-  {
-    "id": "uuid",
-    "job_id": "uuid",
-    "status": "success",
-    "http_status": 200,
-    "duration_ms": 143,
-    "response_body": "{\"ok\":true}",
-    "error_message": null,
-    "attempt": 1,
-    "fired_at": "2024-01-01T09:00:00Z"
-  },
-  {
-    "id": "uuid",
-    "job_id": "uuid",
-    "status": "failed",
-    "http_status": 500,
-    "duration_ms": 30012,
-    "response_body": null,
-    "error_message": "Request timeout",
-    "attempt": 3,
-    "fired_at": "2024-01-01T08:00:00Z"
-  }
-]
-```
-
-### Billing
-
-#### Create checkout session
-
-```http
-POST /billing/checkout
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "plan": "starter"
-}
-```
-
-Response
-
-```json
-{
-  "url": "https://checkout.stripe.com/..."
-}
-```
-
-Redirect the user to `url` to complete payment.
-
-## Cron Expression Reference
+## Cron cheat sheet
 
 ```txt
-┌─────────── minute (0–59)
-│ ┌───────── hour (0–23)
-│ │ ┌─────── day of month (1–31)
-│ │ │ ┌───── month (1–12)
-│ │ │ │ ┌─── day of week (0–6, Sunday=0)
-│ │ │ │ │
+┌──────── minute (0–59)
+│ ┌────── hour (0–23)
+│ │ ┌──── day of month (1–31)
+│ │ │ ┌── month (1–12)
+│ │ │ │ ┌ day of week (0–6, Sun=0)
 * * * * *
 ```
 
-Common examples
-
-| Expression | Meaning |
+| Expression | Runs |
 |---|---|
-| `* * * * *` | Every minute |
 | `*/5 * * * *` | Every 5 minutes |
 | `0 * * * *` | Every hour |
-| `0 9 * * *` | Every day at 9am |
-| `0 9 * * 1` | Every Monday at 9am |
-| `0 0 1 * *` | First day of every month |
-| `0 9,17 * * 1-5` | 9am and 5pm, weekdays only |
+| `0 9 * * *` | Daily at 9:00 |
+| `0 9 * * 1-5` | Weekdays at 9:00 |
 
-## Pricing
+---
 
-| Plan | Free | Starter | Pro |
-|---|---|---|---|
-| Jobs | 3 | 50 | 500 |
-| Log retention | 7 days | 30 days | 90 days |
-| Retry on failure | 3x | 3x | 5x |
-| Email alerts | yes | yes | yes |
-| API access | yes | yes | yes |
-| Price | $0/mo | $9/mo | $29/mo |
+## Environment variables
 
-## Deployment
+Single root `.env` (see `.env.example`):
 
-### Railway (recommended)
+| Variable | Required | Used for |
+|---|---|---|
+| `DATABASE_URL` | ✓ | Postgres (port **5433** locally) |
+| `REDIS_URL` | ✓ | BullMQ / queue |
+| `JWT_SECRET` | ✓ | Auth tokens |
+| `PORT` | | API port (default `4000`) |
+| `APP_URL` | | Frontend URL for redirects |
+| `RESEND_API_KEY` | | Failure emails *(Phase 10)* |
+| `STRIPE_*` | | Billing *(Phase 11)* |
 
-Railway runs your API server, worker, Postgres, and Redis in one place.
-
-```bash
-# Install Railway CLI
-npm install -g @railway/cli
-
-# Login
-railway login
-
-# Create new project
-railway new
-
-# Add plugins
-railway add postgresql
-railway add redis
-
-# Deploy backend
-cd backend
-railway up
-
-# Set environment variables
-railway variables set JWT_SECRET=... STRIPE_SECRET_KEY=... RESEND_API_KEY=...
-```
-
-Set the worker as a separate service with start command `node src/worker.js`.
-
-### Vercel (frontend)
-
-```bash
-# Install Vercel CLI
-npm install -g vercel
-
-cd frontend
-vercel
-
-# Set env vars
-vercel env add NEXT_PUBLIC_API_URL
-```
-
-### Stripe webhook setup
-
-1. Go to Stripe Dashboard → Webhooks → Add endpoint
-2. URL: `https://your-api.railway.app/billing/webhook`
-3. Events to listen for:
-   - `customer.subscription.updated`
-   - `customer.subscription.deleted`
-4. Copy the signing secret → set as `STRIPE_WEBHOOK_SECRET`
-
-## Local Development with Docker
-
-```yaml
-# docker-compose.yml
-version: '3.8'
-services:
-  postgres:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: crono
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-
-volumes:
-  pgdata:
-```
-
-```bash
-docker-compose up -d     # start
-docker-compose down      # stop
-docker-compose down -v   # stop + wipe data
-```
+---
 
 ## Scripts
 
 ```bash
-# Backend
-npm run dev        # Start API with nodemon
-npm run start      # Start API (production)
-npm run worker     # Start BullMQ worker
-npm run migrate    # Run database migrations
-
-# Frontend
-npm run dev        # Start Next.js dev server
-npm run build      # Build for production
-npm run start      # Start production server
+docker compose up -d
+npm run db:migrate -w @crono/db
+npm run db:studio -w @crono/db
+npm run build -w @crono/shared
+npm run dev -w backend
+npm run dev -w frontend
+npm run build -w backend
 ```
+
+---
 
 ## Roadmap
 
-- [x] Core scheduling engine
-- [x] Execution logs
-- [x] Email failure alerts
-- [x] Stripe billing
-- [ ] Slack / Discord alerts
-- [ ] Custom retry config per job
-- [ ] Job groups / tags
-- [ ] Public status page per user
-- [ ] Team accounts
-- [ ] Webhook trigger (run job on event, not schedule)
+| Phase | Feature | Status |
+|:---:|---|:---:|
+| 1 | Database (`@crono/db`) | ✅ |
+| 2 | Queue (`@crono/queue`) | ✅ |
+| 3 | Shared helpers | ✅ |
+| 4 | Backend scaffold + health | ✅ |
+| 5 | Auth (JWT + API keys) | ✅ |
+| 6 | Jobs CRUD + plan limits | ✅ |
+| 7 | BullMQ scheduler | ⬜ |
+| 8 | Worker process | ⬜ |
+| 9 | Executor + logs | ⬜ |
+| 10 | Email alerts | ⬜ |
+| 11 | Stripe billing | ⬜ |
+| 12 | Manual E2E test | ⬜ |
+| 13 | Deploy MVP | ⬜ |
 
-## Repository Policy
+Post-MVP: security hardening, monitoring, automated tests, missed-run alerts, Slack/Discord, HMAC signing.
 
-This is a private SaaS repository.
+---
 
-- Internal development only
-- No public contributions accepted
-- Distribution and reuse require explicit owner approval
+## Deployment *(planned)*
 
-<p align="center">Built by a solo founder. For modern SaaS teams.</p>
+**Railway** — API + worker + Postgres + Redis  
+**Vercel** — Frontend  
+**Stripe** — Webhook at `POST /api/v1/billing/webhook`
+
+Details added when Phase 13 ships.
+
+---
+
+## License & access
+
+Private SaaS repository. Internal development only — no public contributions without owner approval.
+
+---
+
+<p align="center">
+  <sub>Built for teams who ship on a schedule.</sub>
+</p>
