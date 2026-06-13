@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/shared/components/auth/auth-provider";
 import { ThemeInit } from "@/shared/components/theme-init";
 
 export const metadata: Metadata = {
@@ -25,7 +26,7 @@ export default function RootLayout({
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className="min-h-screen antialiased">
         <ThemeInit />
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

@@ -183,7 +183,7 @@ export function LandingPricing({
                 </ul>
 
                 <Link
-                  href="/dashboard"
+                  href="/register"
                   className="mt-6 block"
                   onClick={(e) => e.stopPropagation()}
                 >

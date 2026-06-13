@@ -89,7 +89,7 @@ export function LandingHero({
           </p>
           <div className="mt-10 flex flex-wrap items-center gap-3">
             <Link
-              href="/dashboard"
+              href="/register"
               className="focus-ring btn-primary inline-flex h-10 min-w-28 items-center justify-center gap-2 rounded-xl px-5 text-sm font-medium transition-transform hover:scale-[1.02] active:scale-95"
             >
               Start free

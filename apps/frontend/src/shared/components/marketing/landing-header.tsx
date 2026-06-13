@@ -108,13 +108,13 @@ export function LandingHeader({ menuOpen, onToggleMenu }: LandingHeaderProps) {
         <div className="ml-auto hidden items-center gap-2 md:flex">
           <ThemeToggle />
           <Link
-            href="/dashboard"
+            href="/login"
             className="focus-ring btn-secondary inline-flex h-9 items-center justify-center rounded-xl px-4 text-sm font-medium transition-transform hover:scale-[1.02] active:scale-95"
           >
             Log in
           </Link>
           <Link
-            href="/dashboard"
+            href="/register"
             className="focus-ring btn-primary inline-flex h-9 items-center justify-center rounded-xl px-4 text-sm font-medium transition-transform hover:scale-[1.02] active:scale-95"
           >
             Start free
@@ -164,13 +164,13 @@ export function LandingHeader({ menuOpen, onToggleMenu }: LandingHeaderProps) {
             </Link>
             <div className="mt-3 flex gap-2">
               <Link
-                href="/dashboard"
+                href="/login"
                 className="focus-ring btn-secondary inline-flex h-10 flex-1 items-center justify-center rounded-xl px-4 text-sm font-medium"
               >
                 Log in
               </Link>
               <Link
-                href="/dashboard"
+                href="/register"
                 className="focus-ring btn-primary inline-flex h-10 flex-1 items-center justify-center rounded-xl px-4 text-sm font-medium"
               >
                 Start free
