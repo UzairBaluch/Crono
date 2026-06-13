@@ -1,6 +1,6 @@
 import { ButtonHTMLAttributes } from "react";
 import { cn } from "@/shared/lib/utils";
-import { themeClasses } from "@/lib/theme";
+import { themeClasses } from "@/shared/lib/theme";
 
 type Variant = "primary" | "secondary" | "danger";
 

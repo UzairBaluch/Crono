@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Card } from "@/shared/ui/card";
-import { designTokens, themeClasses } from "@/lib/theme";
+import { designTokens, themeClasses } from "@/shared/lib/theme";
 
 type LogTone = "default" | "success" | "error" | "warning";
 
@@ -13,17 +13,17 @@ interface LogLine {
 }
 
 const logLines: LogLine[] = [
-  { id: "1", text: "[14:30:11] GET /health -> 200 (86ms)", tone: "success" },
-  { id: "2", text: "[14:35:11] POST /sync -> 500 (timeout)", tone: "error" },
-  { id: "3", text: "[14:35:13] Retry scheduled in 3s...", tone: "warning" },
-  { id: "4", text: "[14:35:16] Retry succeeded -> 200 (124ms)", tone: "success" }
+  { id: "1", text: "[14:30:11] GET /health → 200 (86ms)", tone: "success" },
+  { id: "2", text: "[14:35:11] POST /sync → 500 (timeout)", tone: "error" },
+  { id: "3", text: "[14:35:13] Retry scheduled in 5s…", tone: "warning" },
+  { id: "4", text: "[14:35:18] Retry succeeded → 200 (124ms)", tone: "success" },
 ];
 
 const toneClasses: Record<LogTone, string> = {
   default: themeClasses.log.neutral,
   success: themeClasses.log.success,
   error: themeClasses.log.error,
-  warning: themeClasses.log.warning
+  warning: themeClasses.log.warning,
 };
 
 export function ExecutionPreviewLogs() {
@@ -31,12 +31,9 @@ export function ExecutionPreviewLogs() {
 
   useEffect(() => {
     const interval = window.setInterval(() => {
-      setVisibleCount((current) => {
-        if (current >= logLines.length) {
-          return 1;
-        }
-        return current + 1;
-      });
+      setVisibleCount((current) =>
+        current >= logLines.length ? 1 : current + 1,
+      );
     }, 950);
 
     return () => window.clearInterval(interval);
@@ -46,21 +43,27 @@ export function ExecutionPreviewLogs() {
   const isStreaming = visibleCount < logLines.length;
 
   return (
-    <Card className={`${themeClasses.log.wrapper} p-4 ${designTokens.shadows.subtle}`}>
+    <Card className={`${themeClasses.log.wrapper} p-4`}>
       <div className={`${themeClasses.log.inner} p-4`}>
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-xs font-medium tracking-[0.14em] text-muted">Execution Preview</p>
+          <p className="text-xs font-medium tracking-[0.14em] text-muted">
+            Execution preview
+          </p>
           <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-muted">
-            <span className={`h-1.5 w-1.5 rounded-full ${isStreaming ? "animate-pulse bg-emerald-500" : "bg-zinc-500"}`} />
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${isStreaming ? "animate-pulse bg-emerald-500" : "bg-zinc-500"}`}
+            />
             {isStreaming ? "Live" : "Idle"}
           </span>
         </div>
 
-        <ul className={`space-y-2.5 ${themeClasses.log.stream} p-3 ${designTokens.typography.mono} text-[13px] leading-relaxed`}>
+        <ul
+          className={`space-y-2.5 ${themeClasses.log.stream} p-3 ${designTokens.typography.mono} text-[13px] leading-relaxed`}
+        >
           {visibleLogs.map((line, index) => (
             <li
               key={line.id}
-              className={`opacity-0 translate-y-1 animate-[fadeUp_280ms_ease-out_forwards] ${toneClasses[line.tone]}`}
+              className={`animate-fade-up opacity-0 ${toneClasses[line.tone]}`}
               style={{ animationDelay: `${index * 70}ms` }}
             >
               {line.text}
@@ -73,19 +76,6 @@ export function ExecutionPreviewLogs() {
           ) : null}
         </ul>
       </div>
-
-      <style jsx>{`
-        @keyframes fadeUp {
-          from {
-            opacity: 0;
-            transform: translateY(3px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </Card>
   );
 }

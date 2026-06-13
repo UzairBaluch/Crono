@@ -110,4 +110,4 @@ export const logsByJobId: Record<string, LogEntry[]> = {
   ]
 };
 
-export const fakeApiKey = "crn_live_51NCR0N0_dashboard_mock_8f9c2a1d";
+export const fakeApiKey = "cron_live_mock_dashboard_8f9c2a1d";

@@ -1,12 +1,12 @@
-import { CreateJobForm } from "@/components/dashboard/CreateJobForm";
-import { Header } from "@/components/dashboard/Header";
+import { CreateJobForm } from "@/shared/components/dashboard/create-job-form";
+import { Header } from "@/shared/components/dashboard/header";
 
 export default function NewJobPage() {
   return (
     <section>
       <Header
         title="Create Job"
-        description="Define endpoint, method, and schedule for your next automated task."
+        description="Schedule an HTTP endpoint with cron, method, headers, and body."
       />
       <CreateJobForm />
     </section>

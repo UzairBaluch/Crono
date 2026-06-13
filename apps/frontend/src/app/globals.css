@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Dark (default) */
 :root {
   --background: 10 10 10;
   --card: 17 17 17;
@@ -11,20 +12,41 @@
   --foreground: 250 250 250;
   --muted: 161 161 170;
   --muted-foreground: 113 113 122;
-  --ring: 250 250 250;
+  --ring: 96 165 250;
+  --accent: 96 165 250;
+  --accent-strong: 59 130 246;
+  --accent-subtle: 23 37 84;
+  --accent-muted: 59 130 246;
+  --primary: 255 255 255;
+  --primary-foreground: 9 9 11;
+  --success: 16 185 129;
+  --error: 244 63 94;
+  --warning: 245 158 11;
+  --glow-opacity: 0.35;
   color-scheme: dark;
 }
 
+/* Light — same accent family, inverted surfaces */
 .theme-light {
-  --background: 250 250 250;
+  --background: 248 250 252;
   --card: 255 255 255;
-  --card-secondary: 244 244 245;
-  --border: 228 228 231;
-  --hover: 237 237 240;
-  --foreground: 24 24 27;
-  --muted: 113 113 122;
-  --muted-foreground: 82 82 91;
-  --ring: 24 24 27;
+  --card-secondary: 241 245 249;
+  --border: 226 232 240;
+  --hover: 241 245 249;
+  --foreground: 15 23 42;
+  --muted: 100 116 139;
+  --muted-foreground: 71 85 105;
+  --ring: 37 99 235;
+  --accent: 37 99 235;
+  --accent-strong: 29 78 216;
+  --accent-subtle: 239 246 255;
+  --accent-muted: 147 197 253;
+  --primary: 15 23 42;
+  --primary-foreground: 255 255 255;
+  --success: 5 150 105;
+  --error: 225 29 72;
+  --warning: 217 119 6;
+  --glow-opacity: 0.22;
   color-scheme: light;
 }
 
@@ -34,6 +56,38 @@
 
 body {
   @apply bg-background text-foreground antialiased;
+}
+
+.hero-glow {
+  background: radial-gradient(
+    ellipse 80% 60% at 50% -10%,
+    rgb(var(--accent-strong) / 0.18),
+    transparent
+  );
+}
+
+.panel-glow {
+  box-shadow: 0 0 80px -20px rgb(var(--accent-strong) / var(--glow-opacity));
+}
+
+.btn-primary {
+  @apply bg-primary text-primary-foreground transition-colors hover:opacity-90;
+}
+
+.btn-secondary {
+  @apply border border-border bg-card text-foreground transition-colors hover:bg-hover;
+}
+
+.chip-active {
+  @apply border-accent-muted/40 bg-accent-subtle/80 text-accent;
+}
+
+.chip-inactive {
+  @apply border-border bg-card text-muted hover:bg-hover hover:text-foreground;
+}
+
+.nav-active {
+  @apply border border-accent-muted/30 bg-accent-subtle/60 text-accent;
 }
 
 .surface {
@@ -46,5 +100,29 @@ body {
 
 .focus-ring {
   @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background;
-  --tw-ring-color: rgb(var(--ring) / 0.7);
+  --tw-ring-color: rgb(var(--ring) / 0.55);
+}
+
+.text-success {
+  color: rgb(var(--success));
+}
+
+.text-error {
+  color: rgb(var(--error));
+}
+
+.text-warning {
+  color: rgb(var(--warning));
+}
+
+.text-accent {
+  color: rgb(var(--accent));
+}
+
+.interactive-section {
+  @apply mt-16 md:mt-20;
+}
+
+.interactive-section-first {
+  @apply mt-12 md:mt-16;
 }
