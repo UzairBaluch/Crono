@@ -1,6 +1,7 @@
 import { isValidCron, PLAN_LIMITS } from "@crono/shared";
 import { ApiError } from "../utils/ApiError.js";
 import { jobRepository } from "../repositories/job.repository.js";
+import { schedulerService } from "../services/scheduler.service.js";
 import type {
   CreateJobInput,
   UpdateJobInput,
@@ -29,7 +30,12 @@ export const jobService = {
     if (count >= limit) {
       throw new ApiError("Plan limit reached", 403);
     }
-    return jobRepository.insertJob({ ...input, user_id: userId });
+
+    const job = await jobRepository.insertJob({ ...input, user_id: userId });
+    const bullJobId = await schedulerService.syncOnCreate(job);
+    return jobRepository.updateByIdAndUserId(job.id, userId, {
+      bull_job_id: bullJobId,
+    });
   },
 
   async update(userId: string, jobId: string, input: UpdateJobInput) {
@@ -40,7 +46,14 @@ export const jobService = {
     if (!existing) {
       throw new ApiError("Job not found", 404);
     }
-    return jobRepository.updateByIdAndUserId(jobId, userId, input);
+
+    const newBullJobId = await schedulerService.syncOnUpdate(existing, input);
+    const data: UpdateJobInput & { bull_job_id?: string } = { ...input };
+    if (newBullJobId) {
+      data.bull_job_id = newBullJobId;
+    }
+
+    return jobRepository.updateByIdAndUserId(jobId, userId, data);
   },
 
   async remove(userId: string, jobId: string) {
@@ -48,6 +61,8 @@ export const jobService = {
     if (!existing) {
       throw new ApiError("Job not found", 404);
     }
+
+    await schedulerService.syncOnDelete(existing);
     await jobRepository.deleteByIdAndUserId(jobId, userId);
     return { deleted: true };
   },

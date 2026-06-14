@@ -14,6 +14,7 @@ type InsertJobData = {
 
 type UpdateJobData = Partial<Omit<InsertJobData, "user_id">> & {
   status?: string;
+  bull_job_id?: string | null;
 };
 
 export const jobRepository = {
