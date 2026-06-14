@@ -1,12 +1,11 @@
-import { Queue } from "bullmq";
-import { redis, redisUrl } from "./redis.js";
-
-export const cronJobsQueue = new Queue("cron-jobs", {
-  connection: { url: redisUrl, maxRetriesPerRequest: null },
-  defaultJobOptions: {
-    removeOnComplete: 100,
-    removeOnFail: 200,
-  },
-});
-
-export { redis };
+export { redis, redisUrl } from "./redis.js";
+export { cronJobsQueue } from "./cron-jobs-queue.js";
+export {
+  scheduleRepeatJob,
+  pauseRepeatJob,
+  removeRepeatJob,
+  resumeRepeatJob,
+  type ScheduleJobPayload,
+  type ScheduleJobResult,
+  type ScheduleRepeatInput,
+} from "./scheduler.js";
