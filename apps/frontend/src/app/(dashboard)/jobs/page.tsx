@@ -2,9 +2,11 @@
 
 import { Header } from "@/shared/components/dashboard/header";
 import { JobTable } from "@/shared/components/dashboard/job-table";
-import { jobs } from "@/shared/components/dashboard/mock-data";
+import { useJobs } from "@/shared/hooks/use-jobs";
 
 export default function JobsPage() {
+  const { jobs, loading, error } = useJobs();
+
   return (
     <section>
       <Header
@@ -12,7 +14,12 @@ export default function JobsPage() {
         description="Manage scheduled HTTP jobs with status visibility and quick actions."
         showCreateButton
       />
-      <JobTable jobs={jobs} readOnly />
+      {error ? <p className="mb-4 text-sm text-error">{error}</p> : null}
+      {loading ? (
+        <p className="text-sm text-muted">Loading jobs…</p>
+      ) : (
+        <JobTable jobs={jobs} readOnly />
+      )}
     </section>
   );
 }

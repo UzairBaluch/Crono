@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
-import type { Job } from "@/shared/components/dashboard/mock-data";
+import type { JobRow } from "@/shared/types/job";
 
 function JobPill({
   value,
@@ -27,7 +27,7 @@ function JobPill({
 }
 
 interface JobTableProps {
-  jobs: Job[];
+  jobs: JobRow[];
   onPause?: (id: string) => void;
   onDelete?: (id: string) => void;
   readOnly?: boolean;
@@ -72,7 +72,16 @@ export function JobTable({
               className="border-b border-border/60 hover:bg-hover/50"
             >
               <td className="px-4 py-3 font-medium text-foreground">
-                {job.name}
+                {readOnly ? (
+                  <Link
+                    href={`/dashboard/${job.id}`}
+                    className="hover:text-accent hover:underline"
+                  >
+                    {job.name}
+                  </Link>
+                ) : (
+                  job.name
+                )}
               </td>
               <td className="px-4 py-3 text-muted">{job.url}</td>
               <td className="px-4 py-3 font-mono text-xs text-foreground">
@@ -84,24 +93,7 @@ export function JobTable({
                   tone={job.status === "active" ? "green" : "zinc"}
                 />
               </td>
-              <td className="px-4 py-3">
-                <JobPill
-                  value={
-                    job.lastRun === "success"
-                      ? "Success"
-                      : job.lastRun === "failed"
-                        ? "Failed"
-                        : "Retrying"
-                  }
-                  tone={
-                    job.lastRun === "success"
-                      ? "green"
-                      : job.lastRun === "failed"
-                        ? "red"
-                        : "amber"
-                  }
-                />
-              </td>
+              <td className="px-4 py-3 text-muted">—</td>
               {!readOnly ? (
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">

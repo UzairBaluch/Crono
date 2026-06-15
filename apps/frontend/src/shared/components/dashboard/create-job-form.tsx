@@ -1,28 +1,84 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
+import { createJob } from "@/shared/lib/jobs-api";
+import { ApiRequestError } from "@/shared/lib/api";
 
 export function CreateJobForm() {
+  const router = useRouter();
   const [method, setMethod] = useState<"GET" | "POST">("GET");
   const [cronPreset, setCronPreset] = useState("*/5 * * * *");
-  const [created, setCreated] = useState(false);
+  const [name, setName] = useState("");
+  const [url, setUrl] = useState("");
+  const [headersRaw, setHeadersRaw] = useState("");
+  const [body, setBody] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    setError(null);
+    setSubmitting(true);
+
+    try {
+      let headers: Record<string, string> | undefined;
+      if (headersRaw.trim()) {
+        const parsed = JSON.parse(headersRaw) as unknown;
+        if (
+          typeof parsed !== "object" ||
+          parsed === null ||
+          Array.isArray(parsed)
+        ) {
+          throw new Error("Headers must be a JSON object");
+        }
+        headers = Object.fromEntries(
+          Object.entries(parsed).map(([k, v]) => [k, String(v)]),
+        );
+      }
+
+      const { job } = await createJob({
+        name: name.trim(),
+        url: url.trim(),
+        schedule: cronPreset.trim(),
+        method,
+        headers,
+        body: body.trim() || undefined,
+      });
+
+      router.push(`/dashboard/${job.id}`);
+    } catch (err) {
+      if (err instanceof SyntaxError) {
+        setError("Headers must be valid JSON");
+      } else {
+        setError(
+          err instanceof ApiRequestError
+            ? err.message
+            : err instanceof Error
+              ? err.message
+              : "Failed to create job",
+        );
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <Card className="rounded-2xl border-border/80 bg-card p-6">
-      <form
-        className="space-y-5"
-        onSubmit={(event) => {
-          event.preventDefault();
-          setCreated(true);
-          window.setTimeout(() => setCreated(false), 1600);
-        }}
-      >
+      <form className="space-y-5" onSubmit={handleSubmit}>
         <div className="grid gap-5 md:grid-cols-2">
           <label className="space-y-2 text-sm">
             <span className="text-muted">Job Name</span>
-            <input className="h-10 w-full rounded-xl border border-border bg-card-secondary px-3 text-foreground outline-none focus:ring-2 focus:ring-blue-500/30" placeholder="Sync Users" />
+            <input
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="h-10 w-full rounded-xl border border-border bg-card-secondary px-3 text-foreground outline-none focus:ring-2 focus:ring-blue-500/30"
+              placeholder="Sync Users"
+            />
           </label>
 
           <label className="space-y-2 text-sm">
@@ -38,14 +94,22 @@ export function CreateJobForm() {
           </label>
         </div>
 
-        <label className="space-y-2 text-sm block">
+        <label className="block space-y-2 text-sm">
           <span className="text-muted">Endpoint URL</span>
-          <input className="h-10 w-full rounded-xl border border-border bg-card-secondary px-3 text-foreground outline-none focus:ring-2 focus:ring-blue-500/30" placeholder="https://api.crono.dev/sync/users" />
+          <input
+            required
+            type="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            className="h-10 w-full rounded-xl border border-border bg-card-secondary px-3 text-foreground outline-none focus:ring-2 focus:ring-blue-500/30"
+            placeholder="https://httpbin.org/get"
+          />
         </label>
 
-        <label className="space-y-2 text-sm block">
+        <label className="block space-y-2 text-sm">
           <span className="text-muted">Cron Expression</span>
           <input
+            required
             value={cronPreset}
             onChange={(event) => setCronPreset(event.target.value)}
             className="h-10 w-full rounded-xl border border-border bg-card-secondary px-3 font-mono text-foreground outline-none focus:ring-2 focus:ring-blue-500/30"
@@ -55,7 +119,7 @@ export function CreateJobForm() {
             {[
               { label: "Every 5 min", value: "*/5 * * * *" },
               { label: "Hourly", value: "0 * * * *" },
-              { label: "Daily", value: "0 0 * * *" }
+              { label: "Daily", value: "0 0 * * *" },
             ].map((preset) => (
               <button
                 key={preset.value}
@@ -73,19 +137,32 @@ export function CreateJobForm() {
           </div>
         </label>
 
-        <label className="space-y-2 text-sm block">
+        <label className="block space-y-2 text-sm">
           <span className="text-muted">Headers (optional)</span>
-          <textarea className="min-h-[100px] w-full rounded-xl border border-border bg-card-secondary px-3 py-2 text-foreground outline-none focus:ring-2 focus:ring-blue-500/30" placeholder='{"Authorization":"Bearer ..."}' />
+          <textarea
+            value={headersRaw}
+            onChange={(e) => setHeadersRaw(e.target.value)}
+            className="min-h-[100px] w-full rounded-xl border border-border bg-card-secondary px-3 py-2 text-foreground outline-none focus:ring-2 focus:ring-blue-500/30"
+            placeholder='{"Authorization":"Bearer ..."}'
+          />
         </label>
 
-        <label className="space-y-2 text-sm block">
+        <label className="block space-y-2 text-sm">
           <span className="text-muted">Body (optional)</span>
-          <textarea className="min-h-[120px] w-full rounded-xl border border-border bg-card-secondary px-3 py-2 text-foreground outline-none focus:ring-2 focus:ring-blue-500/30" placeholder='{"source":"dashboard"}' />
+          <textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            className="min-h-[120px] w-full rounded-xl border border-border bg-card-secondary px-3 py-2 text-foreground outline-none focus:ring-2 focus:ring-blue-500/30"
+            placeholder='{"source":"dashboard"}'
+          />
         </label>
+
+        {error ? <p className="text-sm text-error">{error}</p> : null}
 
         <div className="flex items-center gap-3">
-          <Button className="h-10 px-5" type="submit">Create Job</Button>
-          {created ? <span className="text-sm text-emerald-500">Mock job created</span> : null}
+          <Button className="h-10 px-5" type="submit" disabled={submitting}>
+            {submitting ? "Creating…" : "Create Job"}
+          </Button>
         </div>
       </form>
     </Card>

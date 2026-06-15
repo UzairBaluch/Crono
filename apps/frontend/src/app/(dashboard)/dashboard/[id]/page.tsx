@@ -1,36 +1,86 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { notFound, useParams } from "next/navigation";
 import { Header } from "@/shared/components/dashboard/header";
 import { LogTable } from "@/shared/components/dashboard/log-table";
 import { Card } from "@/shared/ui/card";
-import { jobs, logsByJobId } from "@/shared/components/dashboard/mock-data";
 import { Button } from "@/shared/ui/button";
+import { fetchJob, updateJob } from "@/shared/lib/jobs-api";
+import { ApiRequestError } from "@/shared/lib/api";
+import type { ApiJob } from "@/shared/types/job";
 
 export default function JobDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
-  const job = jobs.find((item) => item.id === id);
-  const [status, setStatus] = useState<"active" | "paused">(
-    job?.status ?? "active",
-  );
-  const [logFilter, setLogFilter] = useState<
-    "all" | "success" | "failed" | "retrying"
-  >("all");
+  const [job, setJob] = useState<ApiJob | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFoundState, setNotFoundState] = useState(false);
+  const [updating, setUpdating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!job) {
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      setError(null);
+      try {
+        const { job: row } = await fetchJob(id);
+        if (!cancelled) setJob(row);
+      } catch (err) {
+        if (!cancelled) {
+          if (err instanceof ApiRequestError && err.status === 404) {
+            setNotFoundState(true);
+          } else {
+            setError(
+              err instanceof ApiRequestError
+                ? err.message
+                : "Failed to load job",
+            );
+          }
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  if (notFoundState) {
     notFound();
   }
 
-  const logs = logsByJobId[id] ?? [];
-  const filteredLogs = useMemo(
-    () =>
-      logFilter === "all"
-        ? logs
-        : logs.filter((log) => log.status === logFilter),
-    [logFilter, logs],
-  );
+  if (loading) {
+    return <p className="text-sm text-muted">Loading job…</p>;
+  }
+
+  if (!job) {
+    return error ? (
+      <p className="text-sm text-error">{error}</p>
+    ) : null;
+  }
+
+  const status = job.status === "paused" ? "paused" : "active";
+
+  async function toggleStatus() {
+    setUpdating(true);
+    setError(null);
+    try {
+      const { job: updated } = await updateJob(id, {
+        status: status === "active" ? "paused" : "active",
+      });
+      setJob(updated);
+    } catch (err) {
+      setError(
+        err instanceof ApiRequestError ? err.message : "Failed to update job",
+      );
+    } finally {
+      setUpdating(false);
+    }
+  }
 
   return (
     <section>
@@ -38,6 +88,8 @@ export default function JobDetailPage() {
         title={job.name}
         description="Review schedule configuration and inspect recent execution logs."
       />
+
+      {error ? <p className="mb-4 text-sm text-error">{error}</p> : null}
 
       <Card className="rounded-2xl border-border/80 bg-card p-6">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -64,43 +116,28 @@ export default function JobDetailPage() {
             <Button
               variant="secondary"
               className="mt-1 h-8 px-3 text-xs"
-              onClick={() =>
-                setStatus((current) =>
-                  current === "active" ? "paused" : "active",
-                )
-              }
+              disabled={updating}
+              onClick={toggleStatus}
             >
-              {status === "active" ? "Active" : "Paused"}
+              {updating
+                ? "Updating…"
+                : status === "active"
+                  ? "Active"
+                  : "Paused"}
             </Button>
           </div>
         </div>
       </Card>
 
       <div className="mt-6">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold tracking-tight text-foreground">
-            Logs
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {(["all", "success", "failed", "retrying"] as const).map(
-              (filter) => (
-                <button
-                  key={filter}
-                  type="button"
-                  onClick={() => setLogFilter(filter)}
-                  className={`focus-ring rounded-lg border px-2.5 py-1 text-xs transition-colors ${
-                    logFilter === filter
-                      ? "border-blue-500/40 bg-blue-500/10 text-blue-500"
-                      : "border-border bg-card text-muted hover:bg-hover hover:text-foreground"
-                  }`}
-                >
-                  {filter[0].toUpperCase() + filter.slice(1)}
-                </button>
-              ),
-            )}
-          </div>
-        </div>
-        <LogTable logs={filteredLogs} />
+        <h2 className="mb-3 text-lg font-semibold tracking-tight text-foreground">
+          Logs
+        </h2>
+        <LogTable logs={[]} />
+        <p className="mt-2 text-xs text-muted">
+          Runs are saved by the worker. Log API coming soon — check Prisma Studio
+          for now.
+        </p>
       </div>
     </section>
   );

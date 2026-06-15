@@ -1,5 +1,5 @@
 import { Card } from "@/shared/ui/card";
-import type { LogEntry } from "@/shared/components/dashboard/mock-data";
+import type { LogEntry } from "@/shared/types/log";
 
 function StatusDot({ status }: { status: LogEntry["status"] }) {
   const color =

@@ -72,7 +72,7 @@ export function Sidebar({ pathname }: { pathname: string }) {
           <p className="text-[10px] font-medium uppercase tracking-wider text-accent">
             {user?.plan ?? "free"} plan
           </p>
-          <p className="mt-0.5 text-xs text-muted">Jobs UI still mock data</p>
+          <p className="mt-0.5 text-xs text-muted">Live API data</p>
         </div>
         <button
           type="button"
