@@ -2,7 +2,7 @@
 
 Schedule HTTP jobs. Get logs. Get alerted when things break.
 
-[About](#about) · [Quick Start](#quick-start) · [Features](#features) · [Pricing](#pricing) · [API](#api) · [Roadmap](#roadmap)
+[About](#about) · [Quick Start](#quick-start) · [Features](#features) · [Pricing](#pricing) · [API](#api) · [Roadmap](#roadmap) · [Docs](./docs/README.md)
 
 ---
 
@@ -193,6 +193,7 @@ Crono/
 │   ├── queue/            # BullMQ + Redis
 │   └── shared/           # API keys, cron utils, plan constants
 ├── docker-compose.yml
+├── docs/                 # Architecture, development, roadmap
 ├── .env.example
 └── README.md
 ```
@@ -366,6 +367,8 @@ npm run build -w backend
 | 14+ | Backend hardening (retries, timeout, SSRF, retention, security, CI) | ⬜ After deploy |
 
 **Skipped:** Stripe, Slack/Discord — SaaS integrations, not core backend learning.
+
+See [docs/roadmap.md](./docs/roadmap.md) for the full checklist.
 
 ---
 
