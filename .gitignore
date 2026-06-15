@@ -10,6 +10,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 coverage/
-packages/*/dist/
-apps/backend/dist/
+
+# TypeScript build output (all workspaces)
+**/dist/
+
 CRONO_BUILD_CHECKLIST.md
