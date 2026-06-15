@@ -1,18 +1,8 @@
-<p align="center">
-  <strong>Crono</strong>
-</p>
+# Crono
 
-<p align="center">
-  Schedule HTTP jobs. Get logs. Get alerted when things break.
-</p>
+Schedule HTTP jobs. Get logs. Get alerted when things break.
 
-<p align="center">
-  <a href="#quick-start">Quick Start</a> ·
-  <a href="#features">Features</a> ·
-  <a href="#pricing">Pricing</a> ·
-  <a href="#api">API</a> ·
-  <a href="#roadmap">Roadmap</a>
-</p>
+[Quick Start](#quick-start) · [Features](#features) · [Pricing](#pricing) · [API](#api) · [Roadmap](#roadmap)
 
 ---
 
@@ -55,16 +45,17 @@ curl -X POST http://localhost:4000/api/v1/jobs \
 | **Plan limits** | Free / Starter / Pro enforced server-side (3 / 50 / 500 jobs) |
 | **Cron validation** | Invalid schedules rejected before save |
 | **Layered backend** | Routes → controllers → services → repositories (TypeScript + Zod) |
-| **Dashboard UI** | Next.js marketing + dashboard shell (mock data — wiring in progress) |
+| **Dashboard UI** | Next.js — jobs CRUD wired to API, logs UI wired |
+| **Scheduler** | BullMQ repeat jobs on create / pause / delete |
+| **Worker** | Dedicated process — fetch URL, write execution logs |
+| **Execution logs** | Worker writes logs; `GET /jobs/:id/logs` to read |
 
 ### Coming soon
 
 | | |
 |---|---|
-| **Scheduler** | BullMQ repeat jobs on create / pause / delete |
-| **Worker** | Dedicated process that fires jobs on schedule |
-| **Execution logs** | Status, HTTP code, duration, response snippet per run |
 | **Failure alerts** | Email via Resend when a job fails after retries |
+| **Forgot password** | Reset flow via email (same Resend setup) |
 | **Stripe billing** | Checkout + webhooks to sync plan |
 | **Missed-run alerts** | Dead man's switch if a job never fired |
 | **Slack / Discord** | Route failures to chat |
@@ -140,7 +131,10 @@ Postgres runs on **5433** (host). Redis on **6379**.
 # Terminal 1 — API
 npm run dev -w backend
 
-# Terminal 2 — Frontend (optional)
+# Terminal 2 — Worker
+npm run dev -w worker
+
+# Terminal 3 — Frontend (optional)
 npm run dev -w frontend
 ```
 
@@ -174,7 +168,7 @@ Crona/
 ├── apps/
 │   ├── backend/          # Express API (auth, jobs, health)
 │   ├── frontend/         # Next.js dashboard + landing
-│   └── worker/           # BullMQ worker (Phase 8)
+│   └── worker/           # BullMQ worker + executor
 ├── packages/
 │   ├── db/               # Prisma + Postgres
 │   ├── queue/            # BullMQ + Redis
@@ -246,6 +240,7 @@ GET  /api/v1/auth/me          # JWT required
 GET    /api/v1/jobs           # List jobs
 POST   /api/v1/jobs           # Create job
 GET    /api/v1/jobs/:id       # Get one job
+GET    /api/v1/jobs/:id/logs  # Execution logs for a job
 PATCH  /api/v1/jobs/:id       # Update (incl. pause/resume)
 DELETE /api/v1/jobs/:id       # Delete job
 ```
@@ -321,8 +316,8 @@ Single root `.env` (see `.env.example`):
 | `JWT_SECRET` | ✓ | Auth tokens |
 | `PORT` | | API port (default `4000`) |
 | `APP_URL` | | Frontend URL for redirects |
-| `RESEND_API_KEY` | | Failure emails *(Phase 10)* |
-| `STRIPE_*` | | Billing *(Phase 11)* |
+| `RESEND_API_KEY` | | Failure emails *(Phase 12)* |
+| `STRIPE_*` | | Billing *(Phase 13)* |
 
 ---
 
@@ -334,6 +329,7 @@ npm run db:migrate -w @crono/db
 npm run db:studio -w @crono/db
 npm run build -w @crono/shared
 npm run dev -w backend
+npm run dev -w worker
 npm run dev -w frontend
 npm run build -w backend
 ```
@@ -350,13 +346,15 @@ npm run build -w backend
 | 4 | Backend scaffold + health | ✅ |
 | 5 | Auth (JWT + API keys) | ✅ |
 | 6 | Jobs CRUD + plan limits | ✅ |
-| 7 | BullMQ scheduler | ⬜ |
-| 8 | Worker process | ⬜ |
-| 9 | Executor + logs | ⬜ |
-| 10 | Email alerts | ⬜ |
-| 11 | Stripe billing | ⬜ |
-| 12 | Manual E2E test | ⬜ |
-| 13 | Deploy MVP | ⬜ |
+| 7 | BullMQ scheduler | ✅ |
+| 8 | Worker process | ✅ |
+| 9 | Executor (write logs) | ✅ |
+| 10 | Logs read API + frontend | ✅ |
+| 11 | Frontend jobs dashboard | ✅ |
+| 12 | Email alerts + forgot password | ⬜ |
+| 13 | Stripe billing | ⬜ |
+| 14 | Manual E2E test | ⬜ |
+| 15 | Deploy MVP | ⬜ |
 
 Post-MVP: security hardening, monitoring, automated tests, missed-run alerts, Slack/Discord, HMAC signing.
 
@@ -368,7 +366,7 @@ Post-MVP: security hardening, monitoring, automated tests, missed-run alerts, Sl
 **Vercel** — Frontend  
 **Stripe** — Webhook at `POST /api/v1/billing/webhook`
 
-Details added when Phase 13 ships.
+Details added when Phase 15 ships.
 
 ---
 
@@ -378,6 +376,4 @@ Private SaaS repository. Internal development only — no public contributions w
 
 ---
 
-<p align="center">
-  <sub>Built for teams who ship on a schedule.</sub>
-</p>
+*Built for teams who ship on a schedule.*

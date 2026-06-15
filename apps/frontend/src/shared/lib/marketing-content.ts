@@ -18,6 +18,7 @@ import {
   Timer,
   Webhook,
   Zap,
+  Repeat,
 } from "lucide-react";
 
 export type FeatureCategory =
@@ -77,6 +78,15 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
     demoHref: "#playground",
   },
   {
+    category: "scheduling",
+    status: "live",
+    title: "BullMQ repeat scheduler",
+    description:
+      "Creating a job registers a repeat task in Redis. Pause, resume, and delete stay in sync.",
+    icon: Repeat,
+    demoHref: "#how-it-works",
+  },
+  {
     category: "reliability",
     status: "soon",
     title: "Retries with exponential backoff",
@@ -94,11 +104,12 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
   },
   {
     category: "reliability",
-    status: "soon",
+    status: "live",
     title: "Separate worker process",
     description:
-      "API and job execution scale independently — scheduler vs worker.",
+      "API and job execution run independently — BullMQ scheduler plus a dedicated worker.",
     icon: Server,
+    demoHref: "#how-it-works",
   },
   {
     category: "reliability",
@@ -111,10 +122,10 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
   },
   {
     category: "visibility",
-    status: "soon",
+    status: "live",
     title: "Execution logs",
     description:
-      "Every run stored: status, HTTP code, duration, response snippet, errors.",
+      "Every run stored: status, HTTP code, duration, response snippet, and errors — API and dashboard.",
     icon: Logs,
     demoHref: "#logs-demo",
   },
@@ -155,7 +166,8 @@ export const MARKETING_FEATURES: MarketingFeature[] = [
     category: "developer",
     status: "live",
     title: "REST API under /api/v1",
-    description: "Full job CRUD — create, list, update, pause, delete.",
+    description:
+      "Full job CRUD plus execution logs — create, list, update, pause, delete, and inspect runs.",
     icon: Terminal,
     demoHref: "#api",
   },
@@ -270,7 +282,7 @@ export const HOW_IT_WORKS = [
     id: "inspect",
     step: "03",
     title: "Inspect & alert",
-    desc: "Logs, failure emails, and Slack/Discord when something breaks.",
+    desc: "Browse run history in the dashboard today. Email and chat alerts ship next.",
     demoHref: "#logs-demo",
     demoLabel: "Logs demo",
     previewLabel: "GET /api/v1/jobs/:id/logs",
@@ -280,7 +292,7 @@ export const HOW_IT_WORKS = [
   "success": true,
   "data": {
     "logs": [
-      { "status": "success", "http_code": 200, "duration_ms": 143 }
+      { "status": "success", "http_status": 200, "duration_ms": 143 }
     ]
   }
 }`,
