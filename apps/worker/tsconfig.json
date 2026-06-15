@@ -1,0 +1,22 @@
+{
+  // JOB: TypeScript settings for apps/worker — same ESM pattern as backend
+  // STEPS: none — config only; next file is src/index.ts
+  // COMMON MISTAKES: "module": "CommonJS" breaks ESM; wrong outDir
+  // VERIFY: npm run build -w worker (after src/index.ts exists)
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "dist",
+    "rootDir": "src",
+    "strict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "skipLibCheck": true,
+    "lib": ["ES2022"],
+    "moduleDetection": "force",
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
