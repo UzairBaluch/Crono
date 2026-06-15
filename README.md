@@ -52,14 +52,27 @@ curl -X POST http://localhost:4000/api/v1/jobs \
 
 ### Coming soon
 
+Grouped by when they ship — see [Roadmap](#roadmap) for phase numbers.
+
+**Next (MVP — Phases 12–13)**
+
 | | |
 |---|---|
-| **Failure alerts** | Email via Resend when a job fails after retries |
-| **Forgot password** | Reset flow via email (same Resend setup) |
+| **Failure alerts** | Email via Resend when a job fails |
+| **Forgot password** | Reset flow via email |
 | **Stripe billing** | Checkout + webhooks to sync plan |
-| **Missed-run alerts** | Dead man's switch if a job never fired |
+
+**After deploy (Phase 16+)**
+
+| | |
+|---|---|
+| **Retries + exponential backoff** | Wire `retry_count` to BullMQ |
+| **30s hard timeout** | Abort hung outbound requests |
+| **Log retention by plan** | 7 / 30 / 90 day cleanup |
+| **SSRF protections** | Block private IPs on fetch |
+| **Missed-run alerts** | Dead man's switch |
 | **Slack / Discord** | Route failures to chat |
-| **Deploy** | Railway (API + worker) + Vercel (frontend) |
+| **HMAC signed requests** | Verify calls came from Crono |
 
 ---
 
@@ -338,25 +351,31 @@ npm run build -w backend
 
 ## Roadmap
 
+### MVP (build in this order)
+
 | Phase | Feature | Status |
 |:---:|---|:---:|
-| 1 | Database (`@crono/db`) | ✅ |
-| 2 | Queue (`@crono/queue`) | ✅ |
-| 3 | Shared helpers | ✅ |
-| 4 | Backend scaffold + health | ✅ |
-| 5 | Auth (JWT + API keys) | ✅ |
-| 6 | Jobs CRUD + plan limits | ✅ |
-| 7 | BullMQ scheduler | ✅ |
-| 8 | Worker process | ✅ |
+| 1–8 | DB, queue, auth, jobs, scheduler, worker | ✅ |
 | 9 | Executor (write logs) | ✅ |
 | 10 | Logs read API + frontend | ✅ |
-| 11 | Frontend jobs dashboard | ✅ |
-| 12 | Email alerts + forgot password | ⬜ |
+| 11 | Dashboard (jobs + logs) | ✅ |
+| 12 | Email alerts + forgot password | ⬜ **Next** |
 | 13 | Stripe billing | ⬜ |
 | 14 | Manual E2E test | ⬜ |
 | 15 | Deploy MVP | ⬜ |
 
-Post-MVP: security hardening, monitoring, automated tests, missed-run alerts, Slack/Discord, HMAC signing.
+### After deploy (landing “Coming soon” hardening)
+
+| Phase | Feature |
+|:---:|---|
+| 16a | 30s fetch timeout |
+| 16b | Retries + exponential backoff |
+| 16c | Log retention by plan |
+| 16d | SSRF protections |
+| 16e | Dashboard last-run / failed stats |
+| 17+ | Missed-run alerts, Slack/Discord, HMAC, CI, monitoring |
+
+Email and Stripe come **before** retries, timeout, and retention — they finish the sellable product; hardening makes it production-safe.
 
 ---
 
