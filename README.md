@@ -52,27 +52,28 @@ curl -X POST http://localhost:4000/api/v1/jobs \
 
 ### Coming soon
 
-Grouped by when they ship — see [Roadmap](#roadmap) for phase numbers.
-
-**Next (MVP — Phases 12–13)**
+**Next (Phases 12–13)**
 
 | | |
 |---|---|
 | **Failure alerts** | Email via Resend when a job fails |
-| **Forgot password** | Reset flow via email |
-| **Stripe billing** | Checkout + webhooks to sync plan |
+| **Forgot password** | Reset flow via email (same Resend setup) |
+| **Deploy** | Railway + Vercel |
 
-**After deploy (Phase 16+)**
+**After deploy (backend hardening — Phases 14+)**
 
 | | |
 |---|---|
 | **Retries + exponential backoff** | Wire `retry_count` to BullMQ |
 | **30s hard timeout** | Abort hung outbound requests |
-| **Log retention by plan** | 7 / 30 / 90 day cleanup |
+| **Log retention by plan** | 7 / 30 / 90 day cleanup job |
 | **SSRF protections** | Block private IPs on fetch |
+| **Helmet + rate limits** | API security middleware |
 | **Missed-run alerts** | Dead man's switch |
-| **Slack / Discord** | Route failures to chat |
 | **HMAC signed requests** | Verify calls came from Crono |
+| **CI + tests** | Automated test suite |
+
+**Skipped (SaaS, not backend learning):** Stripe billing, Slack/Discord integrations.
 
 ---
 
@@ -87,7 +88,7 @@ Grouped by when they ship — see [Roadmap](#roadmap) for phase numbers.
 | API access | ✓ | ✓ | ✓ |
 | **Price** | **$0** | **$9/mo** | **$29/mo** |
 
-Limits are enforced in the API today. Billing integration ships in a later phase.
+Limits are enforced in the API (3 / 50 / 500 jobs). No Stripe — you're learning backend, not billing.
 
 ---
 
@@ -99,9 +100,8 @@ Limits are enforced in the API today. Billing integration ships in a later phase
 | Queue | BullMQ · Redis |
 | Database | PostgreSQL · Prisma |
 | Frontend | Next.js · Tailwind |
-| Billing | Stripe *(planned)* |
-| Email | Resend *(planned)* |
-| Deploy | Railway + Vercel *(planned)* |
+| Email | Resend *(Phase 12)* |
+| Deploy | Railway + Vercel *(Phase 13)* |
 
 Monorepo workspaces: `apps/backend`, `apps/frontend`, `apps/worker`, `packages/db`, `packages/queue`, `packages/shared`.
 
@@ -330,7 +330,6 @@ Single root `.env` (see `.env.example`):
 | `PORT` | | API port (default `4000`) |
 | `APP_URL` | | Frontend URL for redirects |
 | `RESEND_API_KEY` | | Failure emails *(Phase 12)* |
-| `STRIPE_*` | | Billing *(Phase 13)* |
 
 ---
 
@@ -351,41 +350,23 @@ npm run build -w backend
 
 ## Roadmap
 
-### MVP (build in this order)
+### Build order
 
 | Phase | Feature | Status |
 |:---:|---|:---:|
-| 1–8 | DB, queue, auth, jobs, scheduler, worker | ✅ |
-| 9 | Executor (write logs) | ✅ |
-| 10 | Logs read API + frontend | ✅ |
-| 11 | Dashboard (jobs + logs) | ✅ |
-| 12 | Email alerts + forgot password | ⬜ **Next** |
-| 13 | Stripe billing | ⬜ |
-| 14 | Manual E2E test | ⬜ |
-| 15 | Deploy MVP | ⬜ |
+| 1–11 | Core product (API, worker, logs, dashboard) | ✅ |
+| 12 | Email — failure alert + forgot password | ⬜ Next |
+| 13 | Deploy | ⬜ |
+| 14+ | Backend hardening (retries, timeout, SSRF, retention, security, CI) | ⬜ After deploy |
 
-### After deploy (landing “Coming soon” hardening)
-
-| Phase | Feature |
-|:---:|---|
-| 16a | 30s fetch timeout |
-| 16b | Retries + exponential backoff |
-| 16c | Log retention by plan |
-| 16d | SSRF protections |
-| 16e | Dashboard last-run / failed stats |
-| 17+ | Missed-run alerts, Slack/Discord, HMAC, CI, monitoring |
-
-Email and Stripe come **before** retries, timeout, and retention — they finish the sellable product; hardening makes it production-safe.
+**Skipped:** Stripe, Slack/Discord — SaaS integrations, not core backend learning.
 
 ---
 
-## Deployment *(planned)*
+## Deployment *(Phase 13)*
 
 **Railway** — API + worker + Postgres + Redis  
-**Vercel** — Frontend  
-**Stripe** — Webhook at `POST /api/v1/billing/webhook`
-
-Details added when Phase 15 ships.
+**Vercel** — Frontend
 
 ---
 
