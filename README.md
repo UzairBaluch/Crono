@@ -2,7 +2,13 @@
 
 Schedule HTTP jobs. Get logs. Get alerted when things break.
 
-[Quick Start](#quick-start) · [Features](#features) · [Pricing](#pricing) · [API](#api) · [Roadmap](#roadmap)
+[About](#about) · [Quick Start](#quick-start) · [Features](#features) · [Pricing](#pricing) · [API](#api) · [Roadmap](#roadmap)
+
+---
+
+## About
+
+Built to learn production backend architecture end to end — auth, job queues, background workers, multi-tenant data isolation, and layered service design. Not a product — a learning project.
 
 ---
 
@@ -88,7 +94,7 @@ curl -X POST http://localhost:4000/api/v1/jobs \
 | API access | ✓ | ✓ | ✓ |
 | **Price** | **$0** | **$9/mo** | **$29/mo** |
 
-Limits are enforced in the API (3 / 50 / 500 jobs). No Stripe — you're learning backend, not billing.
+Limits are enforced in the API (3 / 50 / 500 jobs).
 
 ---
 
@@ -117,8 +123,8 @@ Monorepo workspaces: `apps/backend`, `apps/frontend`, `apps/worker`, `packages/d
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/yourusername/crona.git
-cd crona
+git clone https://github.com/UzairBaluch/Crono.git
+cd Crono
 npm install
 ```
 
@@ -177,7 +183,7 @@ curl -X POST http://localhost:4000/api/v1/jobs \
 ## Repository structure
 
 ```txt
-Crona/
+Crono/
 ├── apps/
 │   ├── backend/          # Express API (auth, jobs, health)
 │   ├── frontend/         # Next.js dashboard + landing
@@ -370,10 +376,10 @@ npm run build -w backend
 
 ---
 
-## License & access
+## License
 
-Private SaaS repository. Internal development only — no public contributions without owner approval.
+MIT
 
 ---
 
-*Built for teams who ship on a schedule.*
+*Built to learn. Designed like it ships.*
