@@ -1,9 +1,6 @@
 import { Worker } from "bullmq";
 import { redisUrl } from "@crono/queue";
-
-async function processJob(jobId: string): Promise<void> {
-  console.log(`Processing job ${jobId}`);
-}
+import { executeJob } from "./executor.js";
 
 const worker = new Worker(
   "cron-jobs",
@@ -12,7 +9,7 @@ const worker = new Worker(
     if (!jobId || typeof jobId !== "string") {
       throw new Error("Missing jobId in job data");
     }
-    await processJob(jobId);
+    await executeJob(jobId);
   },
   { connection: { url: redisUrl, maxRetriesPerRequest: null } },
 );
