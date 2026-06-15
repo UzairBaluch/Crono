@@ -112,11 +112,18 @@ export function LandingPricing({
               : 0;
 
           return (
-            <button
+            <div
               key={plan.slug}
-              type="button"
+              role="button"
+              tabIndex={0}
               onClick={() => onSelectPlan(plan.slug)}
-              className={`group text-left transition-all duration-200 ${
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onSelectPlan(plan.slug);
+                }
+              }}
+              className={`group cursor-pointer text-left transition-all duration-200 ${
                 isSelected ? "scale-[1.02] lg:-translate-y-1" : "hover:scale-[1.01]"
               }`}
             >
@@ -195,7 +202,7 @@ export function LandingPricing({
                   </Button>
                 </Link>
               </Card>
-            </button>
+            </div>
           );
         })}
       </div>
