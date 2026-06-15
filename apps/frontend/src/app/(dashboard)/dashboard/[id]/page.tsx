@@ -1,23 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { notFound, useParams } from "next/navigation";
 import { Header } from "@/shared/components/dashboard/header";
 import { LogTable } from "@/shared/components/dashboard/log-table";
 import { Card } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { fetchJob, updateJob } from "@/shared/lib/jobs-api";
+import { fetchJobLogs } from "@/shared/lib/logs-api";
 import { ApiRequestError } from "@/shared/lib/api";
 import type { ApiJob } from "@/shared/types/job";
+import { type LogEntry, toLogEntry } from "@/shared/types/log";
 
 export default function JobDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
   const [job, setJob] = useState<ApiJob | null>(null);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFoundState, setNotFoundState] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [logFilter, setLogFilter] = useState<
+    "all" | "success" | "failed" | "retrying"
+  >("all");
 
   useEffect(() => {
     let cancelled = false;
@@ -25,8 +31,14 @@ export default function JobDetailPage() {
       setLoading(true);
       setError(null);
       try {
-        const { job: row } = await fetchJob(id);
-        if (!cancelled) setJob(row);
+        const [{ job: row }, { logs: rows }] = await Promise.all([
+          fetchJob(id),
+          fetchJobLogs(id),
+        ]);
+        if (!cancelled) {
+          setJob(row);
+          setLogs(rows.map(toLogEntry));
+        }
       } catch (err) {
         if (!cancelled) {
           if (err instanceof ApiRequestError && err.status === 404) {
@@ -48,6 +60,14 @@ export default function JobDetailPage() {
       cancelled = true;
     };
   }, [id]);
+
+  const filteredLogs = useMemo(
+    () =>
+      logFilter === "all"
+        ? logs
+        : logs.filter((log) => log.status === logFilter),
+    [logFilter, logs],
+  );
 
   if (notFoundState) {
     notFound();
@@ -130,14 +150,30 @@ export default function JobDetailPage() {
       </Card>
 
       <div className="mt-6">
-        <h2 className="mb-3 text-lg font-semibold tracking-tight text-foreground">
-          Logs
-        </h2>
-        <LogTable logs={[]} />
-        <p className="mt-2 text-xs text-muted">
-          Runs are saved by the worker. Log API coming soon — check Prisma Studio
-          for now.
-        </p>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">
+            Logs
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {(["all", "success", "failed", "retrying"] as const).map(
+              (filter) => (
+                <button
+                  key={filter}
+                  type="button"
+                  onClick={() => setLogFilter(filter)}
+                  className={`focus-ring rounded-lg border px-2.5 py-1 text-xs transition-colors ${
+                    logFilter === filter
+                      ? "border-blue-500/40 bg-blue-500/10 text-blue-500"
+                      : "border-border bg-card text-muted hover:bg-hover hover:text-foreground"
+                  }`}
+                >
+                  {filter[0].toUpperCase() + filter.slice(1)}
+                </button>
+              ),
+            )}
+          </div>
+        </div>
+        <LogTable logs={filteredLogs} />
       </div>
     </section>
   );

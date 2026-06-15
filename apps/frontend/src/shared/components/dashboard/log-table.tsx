@@ -52,7 +52,9 @@ export function LogTable({ logs }: { logs: LogEntry[] }) {
                   {log.status}
                 </span>
               </td>
-              <td className="px-4 py-3 text-foreground">{log.httpStatusCode}</td>
+              <td className="px-4 py-3 text-foreground">
+                {log.httpStatusCode > 0 ? log.httpStatusCode : "—"}
+              </td>
               <td className="px-4 py-3 text-foreground">{log.durationMs}</td>
               <td className="px-4 py-3 text-muted">{log.message}</td>
             </tr>
