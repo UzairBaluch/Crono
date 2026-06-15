@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { jobController } from "../../controllers/job.controller.js";
+import { logController } from "../../controllers/log.controller.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import { authenticate } from "../../middlewares/authenticate.middleware.js";
@@ -14,6 +15,12 @@ const router = Router();
 router.use(authenticate);
 
 router.get("/", asyncHandler(jobController.list));
+
+router.get(
+  "/:id/logs",
+  validate(jobIdParamSchema, "params"),
+  asyncHandler(logController.listByJobId),
+);
 
 router.get(
   "/:id",
