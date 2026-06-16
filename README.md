@@ -55,31 +55,27 @@ curl -X POST http://localhost:4000/api/v1/jobs \
 | **Scheduler** | BullMQ repeat jobs on create / pause / delete |
 | **Worker** | Dedicated process — fetch URL, write execution logs |
 | **Execution logs** | Worker writes logs; `GET /jobs/:id/logs` to read |
+| **Email failure alerts** | Resend email when a worker run fails |
+| **Forgot password** | Reset link by email + signed token |
 
-### Coming soon
+### In progress (backend depth — deploy last)
 
-**Next (Phases 12–13)**
+One project, many concepts. **Phase 37 = deploy.**
 
-| | |
-|---|---|
-| **Failure alerts** | Email via Resend when a job fails |
-| **Forgot password** | Reset flow via email (same Resend setup) |
-| **Deploy** | Railway + Vercel |
+| Block | Phases | Topics |
+|-------|--------|--------|
+| **Reliability** | 13–16 | Timeout, **HTTP errors (14)**, retries (15), stats |
+| **Distributed systems** | 17–20 | Cursor pagination, idempotency, saga, audit log |
+| **Real-time & webhooks** | 21–23 | WebSockets + Redis, inbound/outbound HMAC |
+| **Security & lifecycle** | 24–27 | Retention, SSRF, rate limits, missed-run |
+| **Auth & search** | 28–29 | OAuth, full-text search |
+| **Production ops** | 30–34 | Readiness, graceful shutdown, DLQ, integration tests, CI |
+| **Stretch** | 35–36 | File uploads, read replicas |
+| **Deploy** | **37** | Railway + Vercel |
 
-**After deploy (backend hardening — Phases 14+)**
+**Skipped:** Stripe billing, Slack/Discord.
 
-| | |
-|---|---|
-| **Retries + exponential backoff** | Wire `retry_count` to BullMQ |
-| **30s hard timeout** | Abort hung outbound requests |
-| **Log retention by plan** | 7 / 30 / 90 day cleanup job |
-| **SSRF protections** | Block private IPs on fetch |
-| **Helmet + rate limits** | API security middleware |
-| **Missed-run alerts** | Dead man's switch |
-| **HMAC signed requests** | Verify calls came from Crono |
-| **CI + tests** | Automated test suite |
-
-**Skipped (SaaS, not backend learning):** Stripe billing, Slack/Discord integrations.
+Full checklist: [docs/roadmap.md](./docs/roadmap.md)
 
 ---
 
@@ -106,8 +102,8 @@ Limits are enforced in the API (3 / 50 / 500 jobs).
 | Queue | BullMQ · Redis |
 | Database | PostgreSQL · Prisma |
 | Frontend | Next.js · Tailwind |
-| Email | Resend *(Phase 12)* |
-| Deploy | Railway + Vercel *(Phase 13)* |
+| Email | Resend |
+| Deploy | Railway + Vercel *(Phase 37 — last)* |
 
 Monorepo workspaces: `apps/backend`, `apps/frontend`, `apps/worker`, `packages/db`, `packages/queue`, `packages/shared`.
 
@@ -336,7 +332,7 @@ Single root `.env` (see `.env.example`):
 | `JWT_SECRET` | ✓ | Auth tokens |
 | `PORT` | | API port (default `4000`) |
 | `APP_URL` | | Frontend URL for redirects |
-| `RESEND_API_KEY` | | Failure emails *(Phase 12)* |
+| `RESEND_API_KEY` | | Failure + password-reset emails |
 
 ---
 
@@ -357,25 +353,32 @@ npm run build -w backend
 
 ## Roadmap
 
-### Build order
+One deep project — **deploy last (Phase 37)**. Details: [docs/roadmap.md](./docs/roadmap.md)
 
-| Phase | Feature | Status |
+| Phase | Block | Status |
 |:---:|---|:---:|
-| 1–11 | Core product (API, worker, logs, dashboard) | ✅ |
-| 12 | Email — failure alert + forgot password | ⬜ Next |
-| 13 | Deploy | ⬜ |
-| 14+ | Backend hardening (retries, timeout, SSRF, retention, security, CI) | ⬜ After deploy |
+| 1–12 | Core + email + forgot password | ✅ |
+| 13–16 | Reliability | ⬜ **Next: 13** |
+| 17–20 | Distributed systems | ⬜ |
+| 21–23 | Real-time & webhooks | ⬜ |
+| 24–27 | Security & lifecycle | ⬜ |
+| 28–29 | OAuth & search | ⬜ |
+| 30–34 | Production ops & CI | ⬜ |
+| 35–36 | Stretch (optional) | ⬜ |
+| 37 | Deploy | ⬜ |
 
-**Skipped:** Stripe, Slack/Discord — SaaS integrations, not core backend learning.
+**Skipped:** Stripe, Slack/Discord.
 
-See [docs/roadmap.md](./docs/roadmap.md) for the full checklist.
+Deploy guide: [docs/deploy.md](./docs/deploy.md) — use when Phase 37 is ready.
 
 ---
 
-## Deployment *(Phase 13)*
+## Deployment *(Phase 37 — last)*
 
 **Railway** — API + worker + Postgres + Redis  
 **Vercel** — Frontend
+
+Follow [docs/deploy.md](./docs/deploy.md) when backend polish is complete.
 
 ---
 

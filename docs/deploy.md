@@ -1,6 +1,8 @@
-# Deploy (Phase 13)
+# Deploy (Phase 37 — last)
 
-Ship Crono to production: **Railway** (API + worker + Postgres + Redis) and **Vercel** (frontend).
+Ship Crono to production **after** Phases 13–36 are complete (or when you decide the story is strong enough).
+
+**Railway** (API + worker + Postgres + Redis) and **Vercel** (frontend).
 
 Do these in order. Check each box before moving on.
 
@@ -168,4 +170,4 @@ Add live demo URL to README:
 **Live demo:** https://your-app.vercel.app
 ```
 
-Phase 14+ hardening (timeout, SSRF, CI) comes after this.
+Phases 13–36 (reliability, distributed systems, real-time, security, CI) come **before** deploy — see [roadmap.md](./roadmap.md).
