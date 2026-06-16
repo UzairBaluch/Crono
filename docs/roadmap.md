@@ -1,20 +1,15 @@
 # Roadmap
 
-Learning project — backend features only. Stripe / Slack skipped.
-
-**Next:** Phase 12 — email (Resend) + forgot password.
+**Next:** Phase 13 — deploy ([deploy guide](./deploy.md)).
 
 ---
 
-## Phase 12 — Email
+## Phase 12 — Email ✅
 
-- [ ] `RESEND_API_KEY` in `.env`
-- [ ] `apps/backend/src/services/email.service.ts`
-- [ ] Worker `executor.ts` — email on `status: failed`
-- [ ] Forgot password — token + `POST /auth/forgot-password` + `POST /auth/reset-password`
-- [ ] Wire `/forgot-password` page
-
-**Verify:** bad URL job → email · reset link works
+- [x] `RESEND_API_KEY` in `.env`
+- [x] `email.service.ts` (backend)
+- [x] Worker failure alert
+- [x] Forgot password + reset password
 
 ---
 
@@ -24,6 +19,8 @@ Learning project — backend features only. Stripe / Slack skipped.
 - [ ] Vercel — frontend (`NEXT_PUBLIC_API_URL`)
 - [ ] Prod env + CORS `APP_URL`
 - [ ] README — live demo URL
+
+See [deploy.md](./deploy.md) for step-by-step instructions.
 
 ---
 
@@ -38,9 +35,3 @@ Learning project — backend features only. Stripe / Slack skipped.
 - [ ] HMAC signed requests
 - [ ] Dashboard stats (last run / failed count)
 - [ ] Automated tests + CI
-
----
-
-## Shipped (reference)
-
-Auth, jobs CRUD, plan limits, BullMQ scheduler, worker executor, logs API, dashboard UI.

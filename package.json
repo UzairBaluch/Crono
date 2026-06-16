@@ -8,8 +8,14 @@
   "scripts": {
     "db:generate": "npm run db:generate -w @crono/db",
     "db:migrate": "npm run db:migrate -w @crono/db",
+    "db:migrate:deploy": "npm run db:migrate:deploy -w @crono/db",
     "db:studio": "npm run db:studio -w @crono/db",
     "build:db": "npm run build -w @crono/db",
+    "build:packages": "npm run build -w @crono/shared && npm run build -w @crono/db && npm run build -w @crono/queue",
+    "build:backend": "npm run build:packages && npm run build -w backend",
+    "build:worker": "npm run build:packages && npm run build -w worker",
+    "start:backend": "npm run start -w backend",
+    "start:worker": "npm run start -w worker",
     "dev": "tsx watch src/index.ts"
   },
   "overrides": {
