@@ -32,3 +32,17 @@ export function loginUser(input: { email: string; password: string }) {
 export function fetchMe() {
   return apiFetch<{ user: AuthUser }>("/auth/me", { auth: true });
 }
+
+export function forgotPassword(email: string) {
+  return apiFetch<{ message: string }>("/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export function resetPassword(token: string, password: string) {
+  return apiFetch<{ message: string }>("/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ token, password }),
+  });
+}

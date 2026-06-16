@@ -5,25 +5,39 @@ import { useState } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { AuthShell } from "@/shared/components/auth/auth-shell";
 import { Button } from "@/shared/ui/button";
+import { ApiRequestError } from "@/shared/lib/api";
+import { forgotPassword } from "@/shared/lib/auth-api";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError(null);
     setSubmitting(true);
-    await new Promise((r) => setTimeout(r, 700));
-    setSubmitting(false);
-    setSent(true);
+
+    try {
+      await forgotPassword(email.trim());
+      setSent(true);
+    } catch (err) {
+      setError(
+        err instanceof ApiRequestError
+          ? err.message
+          : "Could not send reset email. Is the API running?",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (sent) {
     return (
       <AuthShell
         title="Check your inbox"
-        subtitle="Password reset is not wired to email yet — this confirms the UI flow."
+        subtitle="If an account exists for this email, we sent reset instructions."
         backHref="/login"
         backLabel="Back to sign in"
       >
@@ -31,9 +45,8 @@ export default function ForgotPasswordPage() {
           <CheckCircle2 className="mx-auto h-10 w-10 text-success" />
           <p className="mt-4 text-sm text-muted">
             If an account exists for{" "}
-            <span className="font-medium text-foreground">{email}</span>, you
-            will receive reset instructions when the backend ships Resend
-            integration (Phase 10).
+            <span className="font-medium text-foreground">{email}</span>, check
+            your inbox for a reset link (expires in 1 hour).
           </p>
           <Link
             href="/login"
@@ -49,7 +62,7 @@ export default function ForgotPasswordPage() {
   return (
     <AuthShell
       title="Reset password"
-      subtitle="Enter your email — reset emails ship with Phase 10 (Resend)."
+      subtitle="Enter your email and we'll send a reset link."
       backHref="/login"
       backLabel="Back to sign in"
       footer={
@@ -75,17 +88,12 @@ export default function ForgotPasswordPage() {
           />
         </label>
 
+        {error ? <p className="text-sm text-error">{error}</p> : null}
+
         <Button type="submit" className="w-full gap-2" disabled={submitting}>
           {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           {submitting ? "Sending…" : "Send reset link"}
         </Button>
-
-        <p className="text-center text-[11px] text-muted">
-          Need help now?{" "}
-          <Link href="/#contact" className="text-accent hover:underline">
-            Contact us
-          </Link>
-        </p>
       </form>
     </AuthShell>
   );
