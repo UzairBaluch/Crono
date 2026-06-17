@@ -115,8 +115,8 @@ DB, queue, shared, Express scaffold, auth, jobs CRUD, plan limits, BullMQ schedu
 | 30 | Readiness health + structured logs | Liveness vs readiness, `requestId` |
 | 31 | Graceful shutdown | SIGTERM, drain workers |
 | 32 | BullMQ dead-letter handling | Failed job visibility |
-| 33 | Integration tests | Testcontainers E2E — **strong interview differentiator** |
-| 34 | CI + GitHub Actions | Automated quality gate |
+| 33 | Tests (Jest + Supertest + Testcontainers) | Unit, HTTP, real infra |
+| 34 | CI/CD (GitHub Actions) | Automated build + test on every PR |
 
 ---
 
