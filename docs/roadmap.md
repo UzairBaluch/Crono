@@ -118,6 +118,22 @@ DB, queue, shared, Express scaffold, auth, jobs CRUD, plan limits, BullMQ schedu
 | 33 | Tests (Jest + Supertest + Testcontainers) | Unit, HTTP, real infra |
 | 34 | CI/CD (GitHub Actions) | Automated build + test on every PR |
 
+<details>
+<summary>Phase 33–34 details</summary>
+
+### Phase 33 — Tests (Jest + Supertest + Testcontainers)
+- [ ] Jest (or Vitest) + Supertest in `apps/backend`
+- [ ] Unit tests — services with mocked repositories
+- [ ] HTTP tests — register, login, jobs CRUD via Supertest
+- [ ] Testcontainers (stretch) — real Postgres + Redis for one E2E
+
+### Phase 34 — CI/CD (GitHub Actions)
+- [ ] `.github/workflows/ci.yml` — push + pull_request
+- [ ] `npm ci` → build packages → build backend/worker → `npm test`
+- [ ] CI badge in README
+
+</details>
+
 ---
 
 ## G — Stretch (optional)

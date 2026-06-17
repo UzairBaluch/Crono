@@ -69,7 +69,7 @@ One project, many concepts. **Phase 37 = deploy.**
 | **Real-time & webhooks** | 21–23 | WebSockets + Redis, inbound/outbound HMAC |
 | **Security & lifecycle** | 24–27 | Retention, SSRF, rate limits, missed-run |
 | **Auth & search** | 28–29 | OAuth, full-text search |
-| **Production ops** | 30–34 | Readiness, graceful shutdown, DLQ, integration tests, CI |
+| **Production ops** | 30–34 | Readiness, shutdown, DLQ, **Jest/Supertest**, **GitHub Actions CI** |
 | **Stretch** | 35–36 | File uploads, read replicas |
 | **Deploy** | **37** | Railway + Vercel |
 
