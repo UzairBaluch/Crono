@@ -489,7 +489,7 @@ export const FAQS = [
   },
   {
     q: "What's live today vs coming soon?",
-    a: "Job CRUD, auth, scheduler, worker, execution logs, email failure alerts, and forgot password are live. Retries, timeouts, retention cleanup, and SSRF ship after deploy.",
+    a: "Job CRUD, auth, plan limits, scheduler, worker, logs API, dashboard, email alerts, and forgot password are live. Retries/backoff is stored on the job model but not fully wired in the worker yet.",
     category: "product" as const,
     related: { href: "#features", label: "See feature grid" },
   },
@@ -501,7 +501,7 @@ export const FAQS = [
   },
   {
     q: "What happens when a job fails?",
-    a: "Failures are logged with status and error message. Network failures trigger an email alert via Resend. Retries and Slack/Discord webhooks are on the roadmap.",
+    a: "Job CRUD, auth, scheduler, worker, execution logs, email failure alerts, and forgot password are implemented. Retries/backoff and billing are not wired.",
     category: "api" as const,
     related: { href: "#reliability", label: "Retry simulator" },
   },

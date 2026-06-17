@@ -2,21 +2,23 @@
 
 Schedule HTTP jobs. Get logs. Get alerted when things break.
 
-[About](#about) · [Quick Start](#quick-start) · [Features](#features) · [Pricing](#pricing) · [API](#api) · [Roadmap](#roadmap) · [Docs](./docs/README.md)
+[About](#about) · [Quick Start](#quick-start) · [Features](#features) · [API](#api) · [Architecture](#architecture) · [Docs](./docs/README.md)
 
 ---
 
 ## About
 
-Built to learn production backend architecture end to end — auth, job queues, background workers, multi-tenant data isolation, and layered service design. Not a product — a learning project.
+Built to learn production backend architecture end to end — auth, job queues, background workers, multi-tenant data isolation, and layered service design. A learning project, not a commercial SaaS.
+
+**Repo:** [github.com/UzairBaluch/Crono](https://github.com/UzairBaluch/Crono)
 
 ---
 
 ## The problem
 
-Your app needs to hit an endpoint on a schedule — daily reports, cleanup tasks, webhook retries. You could run cron on a VPS, but then you're on the hook for silent failures, no history, and no alerts at 3am.
+Your app needs to hit an endpoint on a schedule — daily reports, cleanup tasks, webhook retries. You could run cron on a VPS, but then you're on the hook for silent failures, no history, and no alerts.
 
-**Crono** is a hosted-style cron API: create jobs over REST, track runs, and get notified when something fails — without babysitting infrastructure.
+**Crono** is a cron-style HTTP job API: create jobs over REST or the dashboard, track runs, and get emailed when a run fails.
 
 ```bash
 curl -X POST http://localhost:4000/api/v1/jobs \
@@ -33,64 +35,51 @@ curl -X POST http://localhost:4000/api/v1/jobs \
 
 ---
 
-## Who it's for
-
-**Indie SaaS founders and backend developers** who need reliable scheduled HTTP calls — with retries, execution history, and failure alerts — managed through an API or dashboard.
-
----
-
 ## Features
-
-### Shipped
 
 | | |
 |---|---|
-| **REST API** | Full job CRUD under `/api/v1` |
-| **Auth** | Register, login, JWT for dashboard, API keys (`cron_…`) for scripts |
-| **Tenant isolation** | Every job scoped to your account — no cross-user access |
-| **Plan limits** | Free / Starter / Pro enforced server-side (3 / 50 / 500 jobs) |
+| **REST API** | Job CRUD under `/api/v1` |
+| **Auth** | Register, login, JWT, API keys (`cron_…`), forgot password |
+| **Tenant isolation** | Every job and log scoped to your account |
+| **Plan limits** | 3 / 50 / 500 active jobs enforced server-side |
 | **Cron validation** | Invalid schedules rejected before save |
 | **Layered backend** | Routes → controllers → services → repositories (TypeScript + Zod) |
-| **Dashboard UI** | Next.js — jobs CRUD wired to API, logs UI wired |
 | **Scheduler** | BullMQ repeat jobs on create / pause / delete |
-| **Worker** | Dedicated process — fetch URL, write execution logs |
-| **Execution logs** | Worker writes logs; `GET /jobs/:id/logs` to read |
-| **Email failure alerts** | Resend email when a worker run fails |
-| **Forgot password** | Reset link by email + signed token |
+| **Worker** | Separate process — `fetch` URL, write execution logs |
+| **Execution logs** | `GET /jobs/:id/logs` + dashboard log UI |
+| **Email alerts** | Resend email when a run fails (network errors) |
+| **Dashboard** | Next.js — jobs CRUD, job detail, logs |
 
-### In progress (backend depth — deploy last)
+### Not included (by design)
 
-One project, many concepts. **Phase 37 = deploy.**
-
-| Block | Phases | Topics |
-|-------|--------|--------|
-| **Reliability** | 13–16 | Timeout, **HTTP errors (14)**, retries (15), stats |
-| **Distributed systems** | 17–20 | Cursor pagination, idempotency, saga, audit log |
-| **Real-time & webhooks** | 21–23 | WebSockets + Redis, inbound/outbound HMAC |
-| **Security & lifecycle** | 24–27 | Retention, SSRF, rate limits, missed-run |
-| **Auth & search** | 28–29 | OAuth, full-text search |
-| **Production ops** | 30–34 | Readiness, shutdown, DLQ, **Jest/Supertest**, **GitHub Actions CI** |
-| **Stretch** | 35–36 | File uploads, read replicas |
-| **Deploy** | **37** | Railway + Vercel |
-
-**Skipped:** Stripe billing, Slack/Discord.
-
-Full checklist: [docs/roadmap.md](./docs/roadmap.md)
+No Stripe billing, no Slack/Discord, no hosted deploy required — run locally with Docker. `retry_count` is stored on jobs but full BullMQ retry/backoff is not wired yet.
 
 ---
 
-## Pricing
+## Architecture
 
-| | **Free** | **Starter** | **Pro** |
-|---|:---:|:---:|:---:|
-| Active jobs | 3 | 50 | 500 |
-| Log retention | 7 days | 30 days | 90 days |
-| Retries on failure | 3× | 3× | 5× |
-| Email alerts | ✓ | ✓ | ✓ |
-| API access | ✓ | ✓ | ✓ |
-| **Price** | **$0** | **$9/mo** | **$29/mo** |
+```txt
+Client (browser / curl)
+    → Express API (auth, jobs, logs)
+    → PostgreSQL (Prisma)
+    → BullMQ scheduler → Redis
+    → Worker (fetch URL, write Log, email on failure)
+```
 
-Limits are enforced in the API (3 / 50 / 500 jobs).
+Monorepo:
+
+```txt
+Crono/
+├── apps/backend/     Express API
+├── apps/worker/      BullMQ consumer + executor
+├── apps/frontend/    Next.js dashboard + landing
+├── packages/db/      Prisma + Postgres
+├── packages/queue/   BullMQ + Redis
+└── packages/shared/  API keys, cron utils, plan limits
+```
+
+More detail: [docs/architecture.md](./docs/architecture.md)
 
 ---
 
@@ -103,9 +92,6 @@ Limits are enforced in the API (3 / 50 / 500 jobs).
 | Database | PostgreSQL · Prisma |
 | Frontend | Next.js · Tailwind |
 | Email | Resend |
-| Deploy | Railway + Vercel *(Phase 37 — last)* |
-
-Monorepo workspaces: `apps/backend`, `apps/frontend`, `apps/worker`, `packages/db`, `packages/queue`, `packages/shared`.
 
 ---
 
@@ -128,29 +114,23 @@ npm install
 
 ```bash
 cp .env.example .env
-# Edit .env — JWT_SECRET, DATABASE_URL (port 5433), REDIS_URL
 ```
 
-### 3. Start infrastructure
+Edit `.env` — at minimum: `JWT_SECRET` (32+ chars), `DATABASE_URL` (port **5433**), `REDIS_URL`, `APP_URL`. Add `RESEND_API_KEY` for failure emails and password reset.
+
+### 3. Infrastructure
 
 ```bash
 docker compose up -d
 npm run db:migrate -w @crono/db
 ```
 
-Postgres runs on **5433** (host). Redis on **6379**.
-
-### 4. Run dev servers
+### 4. Run
 
 ```bash
-# Terminal 1 — API
-npm run dev -w backend
-
-# Terminal 2 — Worker
+npm run dev -w backend    # :4000
 npm run dev -w worker
-
-# Terminal 3 — Frontend (optional)
-npm run dev -w frontend
+npm run dev -w frontend   # :3000 (optional)
 ```
 
 | Service | URL |
@@ -163,36 +143,18 @@ npm run dev -w frontend
 
 ```bash
 # Register
-curl -X POST http://localhost:4000/api/v1/auth/register \
+curl -s -X POST http://localhost:4000/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{"email":"you@example.com","password":"password123"}'
 
-# Create job (use token from register response)
-curl -X POST http://localhost:4000/api/v1/jobs \
+# Create job (use token from response)
+curl -s -X POST http://localhost:4000/api/v1/jobs \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{"name":"Ping","url":"https://httpbin.org/get","schedule":"0 * * * *"}'
 ```
 
----
-
-## Repository structure
-
-```txt
-Crono/
-├── apps/
-│   ├── backend/          # Express API (auth, jobs, health)
-│   ├── frontend/         # Next.js dashboard + landing
-│   └── worker/           # BullMQ worker + executor
-├── packages/
-│   ├── db/               # Prisma + Postgres
-│   ├── queue/            # BullMQ + Redis
-│   └── shared/           # API keys, cron utils, plan constants
-├── docker-compose.yml
-├── docs/                 # Architecture, development, roadmap
-├── .env.example
-└── README.md
-```
+Create a job in the UI → wait for a run → check the Logs tab on the job detail page.
 
 ---
 
@@ -200,13 +162,13 @@ Crono/
 
 Base URL: `/api/v1`
 
-All success responses:
+**Success**
 
 ```json
 { "success": true, "data": { ... } }
 ```
 
-Errors:
+**Error**
 
 ```json
 { "success": false, "message": "..." }
@@ -216,49 +178,28 @@ Errors:
 
 | Method | Header | Use case |
 |---|---|---|
-| JWT | `Authorization: Bearer <token>` | Dashboard, browser |
-| API key | `x-api-key: cron_…` | Scripts, CI *(jobs routes: JWT only for now)* |
+| JWT | `Authorization: Bearer <token>` | Dashboard |
+| API key | `x-api-key: cron_…` | Scripts *(auth routes; jobs use JWT today)* |
 
 ### Auth
 
 ```http
 POST /api/v1/auth/register
 POST /api/v1/auth/login
-GET  /api/v1/auth/me          # JWT required
-```
-
-**Register / login body**
-
-```json
-{ "email": "you@example.com", "password": "password123" }
-```
-
-**Response**
-
-```json
-{
-  "success": true,
-  "data": {
-    "token": "eyJhbGci...",
-    "user": {
-      "id": "uuid",
-      "email": "you@example.com",
-      "plan": "free",
-      "api_key": "cron_..."
-    }
-  }
-}
+POST /api/v1/auth/forgot-password
+POST /api/v1/auth/reset-password
+GET  /api/v1/auth/me
 ```
 
 ### Jobs
 
 ```http
-GET    /api/v1/jobs           # List jobs
-POST   /api/v1/jobs           # Create job
-GET    /api/v1/jobs/:id       # Get one job
-GET    /api/v1/jobs/:id/logs  # Execution logs for a job
-PATCH  /api/v1/jobs/:id       # Update (incl. pause/resume)
-DELETE /api/v1/jobs/:id       # Delete job
+GET    /api/v1/jobs
+POST   /api/v1/jobs
+GET    /api/v1/jobs/:id
+GET    /api/v1/jobs/:id/logs
+PATCH  /api/v1/jobs/:id
+DELETE /api/v1/jobs/:id
 ```
 
 **Create job body**
@@ -268,29 +209,22 @@ DELETE /api/v1/jobs/:id       # Delete job
 | `name` | string | ✓ | Display name |
 | `url` | string | ✓ | Valid URL |
 | `schedule` | string | ✓ | Cron expression |
-| `method` | string | | `GET` or `POST` (default: `GET`) |
+| `method` | string | | `GET` or `POST` |
 | `headers` | object | | Request headers |
-| `body` | string | | JSON body for POST |
-| `timezone` | string | | Default: `UTC` |
-| `retry_count` | number | | Default: `3` |
+| `body` | string | | POST body |
+| `timezone` | string | | Default `UTC` |
+| `retry_count` | number | | Stored; backoff not wired yet |
 
-**Pause / resume**
-
-```json
-{ "status": "paused" }
-{ "status": "active" }
-```
-
-**Status codes**
+**Pause / resume:** `{ "status": "paused" }` or `{ "status": "active" }`
 
 | Code | Meaning |
 |:---:|---|
-| `201` | Job created |
-| `200` | Success |
+| `201` | Created |
+| `200` | OK |
 | `400` | Validation / invalid cron |
-| `401` | Missing or invalid auth |
+| `401` | Unauthorized |
 | `403` | Plan limit reached |
-| `404` | Job not found |
+| `404` | Not found |
 | `409` | Email already registered |
 
 ### Health
@@ -323,15 +257,15 @@ GET /api/v1/health
 
 ## Environment variables
 
-Single root `.env` (see `.env.example`):
+Root `.env` (see `.env.example`):
 
 | Variable | Required | Used for |
 |---|---|---|
 | `DATABASE_URL` | ✓ | Postgres (port **5433** locally) |
-| `REDIS_URL` | ✓ | BullMQ / queue |
-| `JWT_SECRET` | ✓ | Auth tokens |
+| `REDIS_URL` | ✓ | BullMQ |
+| `JWT_SECRET` | ✓ | Auth (32+ characters) |
+| `APP_URL` | ✓ | Frontend URL, email links |
 | `PORT` | | API port (default `4000`) |
-| `APP_URL` | | Frontend URL for redirects |
 | `RESEND_API_KEY` | | Failure + password-reset emails |
 
 ---
@@ -346,39 +280,18 @@ npm run build -w @crono/shared
 npm run dev -w backend
 npm run dev -w worker
 npm run dev -w frontend
-npm run build -w backend
 ```
 
 ---
 
-## Roadmap
+## What I learned building this
 
-One deep project — **deploy last (Phase 37)**. Details: [docs/roadmap.md](./docs/roadmap.md)
-
-| Phase | Block | Status |
-|:---:|---|:---:|
-| 1–12 | Core + email + forgot password | ✅ |
-| 13–16 | Reliability | ⬜ **Next: 13** |
-| 17–20 | Distributed systems | ⬜ |
-| 21–23 | Real-time & webhooks | ⬜ |
-| 24–27 | Security & lifecycle | ⬜ |
-| 28–29 | OAuth & search | ⬜ |
-| 30–34 | Production ops & CI | ⬜ |
-| 35–36 | Stretch (optional) | ⬜ |
-| 37 | Deploy | ⬜ |
-
-**Skipped:** Stripe, Slack/Discord.
-
-Deploy guide: [docs/deploy.md](./docs/deploy.md) — use when Phase 37 is ready.
-
----
-
-## Deployment *(Phase 37 — last)*
-
-**Railway** — API + worker + Postgres + Redis  
-**Vercel** — Frontend
-
-Follow [docs/deploy.md](./docs/deploy.md) when backend polish is complete.
+- Layered API design with Zod validation and consistent error responses
+- Multi-tenant data access (every query scoped by `user_id`)
+- Syncing Postgres state with BullMQ repeat jobs on create / pause / delete
+- Running a separate worker process that shares DB + Redis with the API
+- Transactional email (Resend) from both API and worker
+- JWT auth, API keys, and password reset with signed tokens
 
 ---
 

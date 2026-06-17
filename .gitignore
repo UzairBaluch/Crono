@@ -13,5 +13,3 @@ coverage/
 
 # TypeScript build output (all workspaces)
 **/dist/
-
-CRONO_BUILD_CHECKLIST.md

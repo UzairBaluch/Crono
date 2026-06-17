@@ -91,7 +91,7 @@ export function LandingContactSection({
               },
               {
                 title: "Feature requests",
-                desc: "Missing an integration? Tell us — roadmap is still open.",
+                desc: "Questions or feedback? Get in touch.",
               },
               {
                 title: "Enterprise / volume",

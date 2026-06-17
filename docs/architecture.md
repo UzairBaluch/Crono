@@ -89,6 +89,11 @@ Enforced in `job.service` on create — not billing integration:
 | starter | 50 |
 | pro | 500 |
 
+## Email
+
+- **Failure alerts:** worker calls Resend after a `failed` log (network errors).
+- **Password reset:** `forgot-password` / `reset-password` routes use the same Resend setup.
+
 ## Processes you run locally
 
 | Process | Port / role |
